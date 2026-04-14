@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CheckCircle2, Clock, MessageSquare, Copy, Home, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Clock, MessageSquare, Copy, Home } from 'lucide-react';
 import Link from 'next/link';
 import { useBookingStore } from '@/state/booking-store';
 import { useEffect, useState } from 'react';
@@ -67,9 +67,9 @@ export default function Step5Success() {
         });
 
         toast.success('Pesanan berhasil disimpan!');
-      } catch (error: any) {
+      } catch (error) {
         console.error('Failed to save order:', error);
-        toast.error(error.message || 'Gagal menyimpan pesanan');
+        toast.error(error instanceof Error ? error.message : 'Gagal menyimpan pesanan');
       } finally {
         setIsCreating(false);
       }
@@ -88,6 +88,7 @@ export default function Step5Success() {
         container.appendChild(confetti);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedServiceId]);
 
   const handleCopyOrderId = () => {

@@ -1,18 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Routes that require authentication
-const protectedRoutes = [
-  "/booking",
-  "/riwayat",
-  "/transaksi",
-  "/profil",
-  "/notifikasi",
-];
-
-// Routes that require admin role
-const adminRoutes = ["/admin"];
-
 // Legacy English routes → redirect to Indonesian equivalents
 const redirectMap: Record<string, string> = {
   "/about": "/tentang",

@@ -125,32 +125,32 @@ export const trustStats = [
 export const howItWorks = [
   {
     id: 1,
-    title: "Pilih Layanan",
-    desc: "Pilih paket sesuai kebutuhan kamar dan budget.",
+    title: "Pilih Layanan & Paket",
+    desc: "Buka halaman Layanan dan pilih paket kebersihan yang cocok dengan kondisi kamarmu (misalnya: Daily Cleaning untuk pembersihan dasar, atau Deep Cleaning untuk pembersihan menyeluruh).",
     icon: "check",
   },
   {
     id: 2,
-    title: "Tentukan Jadwal",
-    desc: "Pilih slot waktu tersedia tanpa bentrok antrian.",
+    title: "Tentukan Jadwal & Lokasi",
+    desc: "Tentukan hari dan jam yang paling nyaman untukmu. Masukkan alamat lengkap kos atau asrama beserta detail kamar agar tim kami mudah menemukannya.",
     icon: "calendar",
   },
   {
     id: 3,
-    title: "Bayar",
-    desc: "Selesaikan pembayaran prototype dengan aman.",
+    title: "Selesaikan Pembayaran",
+    desc: "Lakukan pembayaran melalui metode yang tersedia (Transfer Bank, QRIS, atau E-Wallet). Pesananmu akan segera diproses setelah pembayaran terverifikasi.",
     icon: "card",
   },
   {
     id: 4,
-    title: "Notif WhatsApp",
-    desc: "Konfirmasi order langsung masuk ke WhatsApp.",
+    title: "Konfirmasi & Notifikasi",
+    desc: "Kamu akan menerima pesan konfirmasi otomatis melalui WhatsApp yang berisi detail pesanan dan nama mitra kebersihan yang akan bertugas.",
     icon: "message",
   },
   {
     id: 5,
-    title: "Pantau Real-time",
-    desc: "Lihat status layanan sampai selesai di riwayat.",
+    title: "Pantau Status Pesanan",
+    desc: "Tim Dorm Care akan datang sesuai jadwal. Pantau progres pengerjaan secara real-time dari halaman Riwayat Pesanan hingga kamar bersih sempurna.",
     icon: "activity",
   },
 ];
@@ -523,7 +523,7 @@ export const testimonials: TestimoniItem[] = [
     nama: "Dina S.",
     role: "Mahasiswa UNAIR",
     layanan: "Sahabat Manis",
-    rating: 4,
+    rating: 5,
     ulasan:
       "Paket bundling sekamar berdua sangat worth it! Harga hemat, hasilnya bersih. Tinggal duduk manis aja.",
   },

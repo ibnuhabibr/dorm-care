@@ -16,7 +16,7 @@ import {
 } from "@/data/site-data";
 import {
   ActivityIcon,
-  BeforeAfterIcon,
+
   CalendarIcon,
   CardIcon,
   ChecklistIcon,
@@ -32,64 +32,6 @@ const iconByStep = {
   activity: ActivityIcon,
 } as const;
 
-type BeforeAfterCardProps = {
-  title: string;
-  location: string;
-};
-
-function BeforeAfterCard({ title, location }: BeforeAfterCardProps) {
-  const [ratio, setRatio] = useState(52);
-
-  return (
-    <article className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:shadow-md">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h3 className="font-display text-lg font-bold text-neutral-900">{title}</h3>
-          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">{location}</p>
-        </div>
-        <BeforeAfterIcon className="size-5 text-brand-primary" />
-      </div>
-
-      <div className="relative h-56 overflow-hidden rounded-xl border border-neutral-200">
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-100 to-neutral-200">
-          <p className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-neutral-600 shadow-sm backdrop-blur-sm">
-            Kotor
-          </p>
-          <div className="absolute inset-x-4 bottom-4 h-8 rounded-lg bg-neutral-300/50" />
-          <div className="absolute left-6 top-16 h-16 w-16 rounded-xl bg-neutral-300/40 rotate-12" />
-        </div>
-
-        <div
-          className="absolute inset-y-0 right-0 overflow-hidden bg-gradient-to-br from-brand-primary-light to-[#A7F3D0]"
-          style={{ width: `${ratio}%` }}
-        >
-          <p className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-primary-dark shadow-sm backdrop-blur-sm">
-            Sesudah
-          </p>
-          <div className="absolute inset-x-4 bottom-4 h-8 rounded-lg bg-brand-primary/20" />
-          <div className="absolute right-6 top-16 h-16 w-16 rounded-xl bg-brand-primary/10 rotate-12" />
-        </div>
-
-        <div className="absolute inset-y-0 left-[calc(100%-52%)] w-0.5 bg-white shadow-[0_0_8px_rgba(0,0,0,0.2)]" style={{ left: `${100 - ratio}%` }}>
-          <div className="absolute top-1/2 -ml-3 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full bg-white text-neutral-400 shadow-sm ring-1 ring-neutral-200/50">
-            <span className="h-3 w-0.5 bg-neutral-300 mx-px rounded-full" />
-            <span className="h-3 w-0.5 bg-neutral-300 mx-px rounded-full" />
-          </div>
-        </div>
-      </div>
-
-      <input
-        type="range"
-        min={10}
-        max={90}
-        value={ratio}
-        onChange={(event) => setRatio(Number(event.target.value))}
-        className="mt-5 h-2 w-full cursor-pointer appearance-none rounded-full bg-neutral-200 accent-brand-primary outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2"
-        aria-label="Atur slider before after"
-      />
-    </article>
-  );
-}
 
 function CountUpStat({ value, label }: { value: string; label: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -150,7 +92,9 @@ export default function Homepage() {
   // Persist banner dismiss in sessionStorage
   useEffect(() => {
     const dismissed = sessionStorage.getItem("dormcare-banner-dismissed");
-    if (!dismissed) setShowBanner(true);
+    if (!dismissed) {
+      setTimeout(() => setShowBanner(true), 0);
+    }
   }, []);
 
   const dismissBanner = () => {
@@ -341,8 +285,7 @@ export default function Homepage() {
                   </span>
                 </div>
                 <div className="mt-6 text-center">
-                  <h3 className="text-base font-bold text-neutral-900">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-neutral-500">{step.desc}</p>
+                  <h3 className="text-sm font-bold text-neutral-900">{step.title}</h3>
                 </div>
               </article>
             );
@@ -384,20 +327,6 @@ export default function Homepage() {
           {filteredServices.map((service) => (
             <ServiceCard key={service.id} item={service} />
           ))}
-        </div>
-      </section>
-
-      {/* Showcase Hasil */}
-      <section className="pt-28">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-brand-primary mb-2">Bukti Kerja</p>
-          <h2 className="font-display text-3xl font-bold text-neutral-900 md:text-4xl">Hasilnya nyata, bukan janji</h2>
-        </div>
-        
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <BeforeAfterCard title="Kamar Kos Standard" location="Sukolilo" />
-          <BeforeAfterCard title="Asrama Blok B" location="Keputih" />
-          <BeforeAfterCard title="Kamar Studio" location="Mulyorejo" />
         </div>
       </section>
 
@@ -484,7 +413,7 @@ export default function Homepage() {
                 </div>
               </div>
               <RatingStars value={testimonial.rating} />
-              <p className="mt-4 text-sm leading-relaxed text-neutral-600 line-clamp-4">"{testimonial.ulasan}"</p>
+              <p className="mt-4 text-sm leading-relaxed text-neutral-600 line-clamp-4">&quot;{testimonial.ulasan}&quot;</p>
               <div className="mt-5 inline-block rounded-lg bg-neutral-100 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-neutral-600">
                 {testimonial.layanan}
               </div>

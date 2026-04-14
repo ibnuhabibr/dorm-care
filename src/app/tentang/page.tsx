@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+
 import { useState } from "react";
 import {
   ChevronRight,
@@ -45,11 +45,7 @@ const timeline = [
   { year: "2026 Q3", event: "Ekspansi area dan peluncuran program member" },
 ];
 
-const team = [
-  { initial: "IH", name: "I. Habib R.", role: "Founder & Lead" },
-  { initial: "DP", name: "D. Prasetyo", role: "Operations" },
-  { initial: "SR", name: "S. Rahmawati", role: "Customer Success" },
-];
+
 
 export default function TentangPage() {
   const [openFaq, setOpenFaq] = useState<string | null>(null);
@@ -140,25 +136,6 @@ export default function TentangPage() {
                 <p className="text-sm font-medium text-neutral-800">{item.event}</p>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Team */}
-      <section className="pt-20">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <p className="section-label mb-2">Tim Kami</p>
-          <h2 className="font-display text-3xl font-bold text-neutral-900">Orang-orang di balik Dorm Care</h2>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-3 max-w-2xl mx-auto">
-          {team.map((member) => (
-            <article key={member.name} className="rounded-2xl border border-neutral-200 bg-white p-6 text-center shadow-sm card-hover">
-              <div className="mx-auto mb-4 grid size-16 place-content-center rounded-full bg-gradient-to-br from-brand-primary to-brand-primary-dark text-xl font-bold text-white shadow-md">
-                {member.initial}
-              </div>
-              <h3 className="font-display text-sm font-bold text-neutral-900">{member.name}</h3>
-              <p className="text-xs text-neutral-500 mt-1">{member.role}</p>
-            </article>
           ))}
         </div>
       </section>

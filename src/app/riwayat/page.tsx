@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, Filter, MessageSquare, ChevronDown, ChevronUp, MapPin, CreditCard, Clock, RotateCcw, Star, StarHalf, Phone, CheckCircle2, XCircle } from "lucide-react";
+import { Search, Filter, MessageSquare, ChevronDown, ChevronUp, MapPin, CreditCard, RotateCcw, Star, Phone, CheckCircle2, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { formatRupiah } from "@/lib/utils";
@@ -255,7 +255,7 @@ export default function RiwayatPage() {
                             <MapPin className="size-4 text-brand-primary shrink-0 mt-0.5" />
                             <div>
                               <p className="font-bold text-neutral-800">{order.address}</p>
-                              {order.notes && <p className="text-xs text-neutral-500 mt-1 italic">Catatan: "{order.notes}"</p>}
+                              {order.notes && <p className="text-xs text-neutral-500 mt-1 italic">Catatan: &quot;{order.notes}&quot;</p>}
                             </div>
                           </div>
                           <div className="flex gap-3 text-sm">

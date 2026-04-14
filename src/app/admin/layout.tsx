@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ReactNode } from 'react';
 import {
   Menu,
@@ -28,6 +29,7 @@ const adminMenuItems = [
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const pathname = usePathname();
 
   return (
     <div className="flex h-screen bg-neutral-50">
@@ -54,16 +56,27 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <nav className="flex-1 p-4 space-y-2">
           {adminMenuItems.map((item) => {
             const Icon = item.icon;
+            const isActive = item.href === '/admin'
+              ? pathname === '/admin'
+              : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-neutral-100 transition group justify-start"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition group justify-start ${
+                  isActive
+                    ? 'bg-brand-primary-light text-brand-primary-dark font-bold'
+                    : 'hover:bg-neutral-100'
+                }`}
                 title={item.label}
               >
-                <Icon className="w-5 h-5 text-neutral-600 group-hover:text-brand-primary transition min-w-[20px]" />
+                <Icon className={`w-5 h-5 transition min-w-[20px] ${
+                  isActive ? 'text-brand-primary' : 'text-neutral-600 group-hover:text-brand-primary'
+                }`} />
                 {sidebarOpen && (
-                  <span className="text-sm font-medium text-neutral-700 group-hover:text-brand-primary transition">
+                  <span className={`text-sm transition ${
+                    isActive ? 'font-bold text-brand-primary-dark' : 'font-medium text-neutral-700 group-hover:text-brand-primary'
+                  }`}>
                     {item.label}
                   </span>
                 )}

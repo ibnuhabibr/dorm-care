@@ -48,8 +48,8 @@ export default function AdminPesananPage() {
       const keyword = search.toLowerCase();
       const matchSearch =
         o.id.toLowerCase().includes(keyword) ||
-        o.layanan.toLowerCase().includes(keyword) ||
-        o.pelanggan.toLowerCase().includes(keyword);
+        o.layananNama.toLowerCase().includes(keyword) ||
+        o.namaUser.toLowerCase().includes(keyword);
       return matchStatus && matchSearch;
     });
   }, [orders, filter, search]);
@@ -217,17 +217,16 @@ export default function AdminPesananPage() {
                       </td>
                       <td className="p-4">
                         <p className="font-mono text-xs font-bold text-brand-primary">{order.id}</p>
-                        <p className="font-bold text-neutral-900 mt-0.5">{order.pelanggan}</p>
+                        <p className="font-bold text-neutral-900 mt-0.5">{order.namaUser}</p>
                       </td>
                       <td className="p-4">
-                        <p className="font-medium text-neutral-900">{order.layanan}</p>
+                        <p className="font-medium text-neutral-900">{order.layananNama}</p>
                         {order.mitra && (
                           <p className="text-xs text-neutral-500 mt-0.5">Mitra: <span className="font-semibold">{order.mitra}</span></p>
                         )}
                       </td>
                       <td className="p-4">
                         <p className="text-neutral-900">{order.tanggal}</p>
-                        <p className="text-xs text-neutral-500">{order.waktu}</p>
                       </td>
                       <td className="p-4">
                         <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${badge.class}`}>
@@ -264,7 +263,7 @@ export default function AdminPesananPage() {
                           )}
                           <button
                             type="button"
-                            onClick={() => toast.success(`Membuka WhatsApp ${order.pelanggan}...`)}
+                            onClick={() => toast.success(`Membuka WhatsApp ${order.namaUser}...`)}
                             className="rounded-lg border border-green-200 bg-green-50 p-1.5 text-green-600 hover:bg-green-100 transition"
                             title="Hubungi via WA"
                           >

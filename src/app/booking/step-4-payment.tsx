@@ -5,7 +5,7 @@ import { QrCode, Smartphone, Landmark, Copy, CheckCircle2 } from 'lucide-react';
 import { useBookingStore } from '@/state/booking-store';
 import { formatRupiah } from '@/lib/utils';
 import toast from 'react-hot-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const BANK_OPTIONS = [
   { id: 'bca', name: 'BCA', number: '4831-2104-4000', account: 'A.N DORM CARE' },
@@ -34,7 +34,13 @@ export default function Step4Payment() {
   const [uploadedProof, setUploadedProof] = useState<string | null>(null);
 
   // Generate order ID
-  const orderId = `DC-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+  const [orderId, setOrderId] = useState<string>('');
+  
+  useEffect(() => {
+    setTimeout(() => {
+      setOrderId(`DC-${Math.random().toString(36).substring(2, 8).toUpperCase()}`);
+    }, 0);
+  }, []);
 
   const handleCopyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

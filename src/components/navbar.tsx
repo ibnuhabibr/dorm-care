@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, ChevronDown, LogOut, Menu, ShieldCheck, Sparkles, User, X } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -68,16 +69,15 @@ export function Navbar() {
       )}
     >
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="group flex items-center gap-3">
-          <div className="grid size-11 place-content-center rounded-2xl bg-brand-primary-light text-brand-primary transition group-hover:scale-105">
-            <Sparkles className="size-5" />
-          </div>
-          <div>
-            <p className="font-display text-xl font-bold text-neutral-900">Dorm Care</p>
-            <span className="rounded-full bg-brand-primary-light/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-brand-primary-dark">
-              Surabaya
-            </span>
-          </div>
+        <Link href="/" className="group flex items-center">
+          <Image 
+            src="/logo.webp" 
+            alt="Dorm Care" 
+            width={160} 
+            height={48} 
+            className="h-10 w-auto object-contain transition group-hover:opacity-90" 
+            priority
+          />
         </Link>
 
         <nav className="hidden items-center gap-5 lg:flex">

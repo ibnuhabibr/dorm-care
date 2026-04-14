@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Bot, MessageCircle, Send, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 import { chatbotQuickReplies } from "@/data/site-data";
 
@@ -154,7 +155,23 @@ export function ChatbotSidebar() {
                       : "ml-auto max-w-[88%] rounded-2xl rounded-tr-sm bg-brand-primary px-3 py-2 text-sm text-white"
                   }
                 >
-                  {message.content}
+                  {message.role === "assistant" ? (
+                    <ReactMarkdown 
+                      components={{
+                        p: ({children}) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                        ul: ({children}) => <ul className="list-disc pl-5 mb-2 space-y-1">{children}</ul>,
+                        ol: ({children}) => <ol className="list-decimal pl-5 mb-2 space-y-1">{children}</ol>,
+                        li: ({children}) => <li>{children}</li>,
+                        strong: ({children}) => <strong className="font-bold text-neutral-900">{children}</strong>,
+                        em: ({children}) => <em className="italic">{children}</em>,
+                        a: ({href, children}) => <a href={href} target="_blank" rel="noreferrer" className="text-brand-primary underline underline-offset-2">{children}</a>
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  ) : (
+                    message.content
+                  )}
                 </div>
               ))}
               {isLoading && (

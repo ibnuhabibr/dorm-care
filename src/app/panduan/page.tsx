@@ -110,7 +110,7 @@ export default function PanduanPage() {
             return (
               <article
                 key={step.id}
-                className="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-5 md:grid-cols-[60px_1fr_240px] md:items-center"
+                className="grid gap-4 rounded-2xl border border-neutral-200 bg-white p-5 md:grid-cols-[60px_1fr] md:items-center"
               >
                 <div className="font-heading grid size-12 place-content-center rounded-xl bg-brand-primary text-lg font-bold text-white">
                   {step.id}
@@ -119,38 +119,12 @@ export default function PanduanPage() {
                   <h3 className="h3-title text-neutral-900">{step.title}</h3>
                   <p className="mt-2 text-sm text-neutral-600">{step.desc}</p>
                 </div>
-                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
-                  <div className="mb-2 flex items-center gap-2 text-brand-primary-dark">
-                    <Icon className="size-4" />
-                    <p className="text-xs font-bold uppercase tracking-[0.1em]">Contoh tampilan</p>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-2 w-full rounded-full bg-neutral-200" />
-                    <div className="h-2 w-4/5 rounded-full bg-neutral-200" />
-                    <div className="h-8 w-full rounded-lg bg-brand-primary-light" />
-                  </div>
-                </div>
               </article>
             );
           })}
         </div>
       </section>
 
-      {/* Tips */}
-      <section className="pt-14">
-        <h2 className="h2-title text-neutral-900">Tips & Catatan Penting</h2>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
-          <article className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            💡 Booking minimal 1 jam sebelum jadwal agar slot lebih aman.
-          </article>
-          <article className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
-            ⚠️ Pembayaran pada fase ini masih bersifat prototype simulasi.
-          </article>
-          <article className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-900">
-            ✅ Notifikasi WhatsApp dikirim otomatis sesudah pesanan dikonfirmasi.
-          </article>
-        </div>
-      </section>
 
       {/* Kebijakan */}
       <section className="pt-14">
@@ -174,20 +148,6 @@ export default function PanduanPage() {
             </article>
           ))}
         </div>
-      </section>
-
-      {/* Video Coming Soon */}
-      <section className="pt-14">
-        <article className="rounded-3xl border border-neutral-200 bg-white p-6 text-center shadow-sm sm:p-10">
-          <p className="section-label">Video tutorial</p>
-          <h2 className="h2-title mt-2 text-neutral-900">Panduan video coming soon</h2>
-          <div className="mt-6 grid place-content-center">
-            <div className="grid h-52 w-[min(640px,90vw)] place-content-center rounded-2xl border border-neutral-200 bg-neutral-50 text-neutral-500">
-              <PlayCircle className="mx-auto size-12 text-brand-primary" />
-              <p className="mt-2 text-sm font-semibold">Video panduan akan segera tersedia</p>
-            </div>
-          </div>
-        </article>
       </section>
 
       {/* FAQ */}

@@ -6,7 +6,7 @@ import { ArrowRight, Calculator, Search, SlidersHorizontal, TicketPercent } from
 
 import { ServiceCard } from "@/components/service-card";
 import { promoCatalog, serviceCatalog, type ServiceCategory } from "@/data/site-data";
-import { formatRupiah } from "@/lib/utils";
+
 
 const sections: Array<{ key: "semua" | ServiceCategory; title: string; description: string }> = [
   { key: "semua", title: "Semua Layanan", description: "Lihat seluruh katalog layanan Dorm Care" },
@@ -68,7 +68,7 @@ export default function LayananPage() {
           </p>
 
           <div className="mt-10 grid gap-4 md:grid-cols-3 xl:w-4/5 border-t border-white/10 pt-8">
-            {promoCatalog.slice(0, 3).map((promo, i) => (
+            {promoCatalog.slice(0, 3).map((promo) => (
               <article key={promo.id} className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-md transition hover:bg-white/10 hover:border-brand-primary/50">
                 {/* Accent glow on hover */}
                 <div className="absolute -inset-x-4 -inset-y-4 z-0 opacity-0 bg-brand-primary/10 blur-xl transition-opacity hover:opacity-100 group-hover:opacity-100" />
@@ -148,7 +148,7 @@ export default function LayananPage() {
             ))
           ) : (
             <div className="col-span-3 py-12 text-center">
-              <p className="text-neutral-500 text-sm">Tidak ada layanan yang cocok dengan pencarian "{searchQuery}"</p>
+              <p className="text-neutral-500 text-sm">Tidak ada layanan yang cocok dengan pencarian &quot;{searchQuery}&quot;</p>
             </div>
           )}
         </div>
