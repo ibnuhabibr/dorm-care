@@ -96,16 +96,21 @@ export default function AdminPesananPage() {
     if (data) {
       const mappedOrders = data.map((d: any) => ({
         id: d.order_number,
+        orderId: d.order_number, // Added explicitly for OrderItem type
         dbId: d.id, // Supabase UUID
         userId: d.user_id,
         namaUser: d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name || ''}`.trim() : "Unknown",
         noHp: d.profiles?.phone || d.mitra_phone || "-",
         layananId: d.service_id,
         layananNama: d.service_name,
-        harga: d.total_amount,
-        jadwalWaktu: new Date(`${d.scheduled_date}T${d.scheduled_time}`).toISOString(),
-        lokasi: d.address,
-        status: dbToAppStatus(d.status)
+        total: d.total_amount, // Renamed from harga
+        tanggal: new Date(`${d.scheduled_date}T${d.scheduled_time}`).toLocaleString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}), // Renamed from jadwalWaktu
+        alamat: d.address, // Renamed from lokasi
+        status: dbToAppStatus(d.status),
+        metodePembayaran: "qris" as const, // Default dummy since we don't fetch payments yet
+        mitra: d.mitra_name || "Mencari Mitra...",
+        catatan: d.notes || "",
+        timeline: [] // Dummy empty timeline since not used in this view
       }));
       setOrders(mappedOrders);
     }
