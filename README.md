@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dorm Care Web Prototype
 
-## Getting Started
+Prototype website Dorm Care berbasis Next.js untuk validasi alur bisnis jasa kebersihan area Surabaya.
 
-First, run the development server:
+## Stack
+
+- Next.js App Router + React + TypeScript
+- Tailwind CSS
+- Supabase (Auth + PostgreSQL)
+- API Route untuk chatbot dan notifikasi WhatsApp prototype
+- Siap deploy frontend ke Vercel
+
+## Fitur yang sudah dibangun
+
+- Homepage modern dengan promo, rekomendasi UX lanjutan, dan CTA booking
+- Halaman layanan lengkap sesuai pricelist dan paket bundling
+- Halaman About, Contact, Panduan, Terms
+- Halaman transaksi prototype (QRIS, E-Wallet, transfer bank)
+- Halaman riwayat layanan dan status booking
+- Halaman profil user dengan tier Bronze, Silver, Gold
+- Auth page login/signup email + Google OAuth (Supabase)
+- Sidebar chatbot 24/7 + endpoint API chat
+- Admin panel prototype untuk dashboard, update status order, dan CRUD layanan
+
+## Menjalankan project
+
+1. Install dependency
+
+```bash
+npm install
+```
+
+2. Duplikat file environment
+
+```bash
+cp .env.example .env.local
+```
+
+3. Isi environment Supabase dan DeepSeek di file env
+
+4. Jalankan development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Buka http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Struktur penting
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- src/app: semua route halaman dan API
+- src/components: komponen UI reusable
+- src/data/site-data.ts: sumber data layanan, harga, FAQ, membership, dan seed order
+- src/lib/supabase/client.ts: inisialisasi Supabase browser client
+- public/chatbot-memory.json: memory intent chatbot (prototype)
 
-## Learn More
+## Catatan implementasi bisnis
 
-To learn more about Next.js, take a look at the following resources:
+- Untuk fase awal, kombinasi login Email + Google disarankan.
+- Nomor WhatsApp tetap dikumpulkan sebagai metadata akun untuk notifikasi booking.
+- Halaman panduan sebaiknya tetap terpisah agar onboarding user baru lebih cepat.
+- Payment gateway saat ini statis sesuai kebutuhan purwarupa.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Frontend: Vercel
+- Backend lanjutan (opsional): VPS untuk webhook, worker notifikasi, dan service admin internal

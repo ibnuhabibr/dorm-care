@@ -1,0 +1,99 @@
+{
+  "intents": [
+    {
+      "key": "harga_basic",
+      "samples": ["harga basic", "basic clean", "berapa basic", "paling murah"],
+      "answer": "Basic Clean harganya Rp 20.000, sudah termasuk menyapu dan mengepel area kamar. Ini paket paling hemat kami!"
+    },
+    {
+      "key": "harga_pro",
+      "samples": ["pro basic", "harga pro", "kamar mandi", "vakum"],
+      "answer": "Pro Basic Clean Rp 35.000 — termasuk sapu, pel, 1 kamar mandi, vakum kasur, dan room spray gratis untuk member baru 1 bulan pertama."
+    },
+    {
+      "key": "harga_deep",
+      "samples": ["deep clean", "deep cleaning", "harga deep", "sela sela"],
+      "answer": "Deep Clean Rp 50.000 — pembersihan menyeluruh: sapu, pel, 1 KM, vakum kasur, sela-sela sudut, room spray, dan pengelapan."
+    },
+    {
+      "key": "extra_deep",
+      "samples": ["extra deep", "cuci piring", "ekstra"],
+      "answer": "Extra Deep Clean Rp 63.000 — semua fitur Deep Clean ditambah cuci piring maksimal 10 piring."
+    },
+    {
+      "key": "special_clean",
+      "samples": ["special clean", "laundry", "antar jemput"],
+      "answer": "Special Clean: Rp 78.000 (radius 5km) atau Rp 93.000 (radius 10km). Termasuk cleaning + laundry antar jemput."
+    },
+    {
+      "key": "jasa_laundry",
+      "samples": ["jasa laundry", "laundry saja", "harga laundry"],
+      "answer": "Jasa Laundry: Rp 15.000 untuk radius 5km, Rp 30.000 untuk radius 10km. Antar jemput langsung ke kos kamu."
+    },
+    {
+      "key": "kipas",
+      "samples": ["kipas", "bersih kipas", "kipas angin"],
+      "answer": "Pembersihan Kipas Angin cuma Rp 7.000. Baling-baling dan body kipas dibersihkan sampai kinclong."
+    },
+    {
+      "key": "bundling",
+      "samples": ["bundling", "paket bersama", "berdua", "sahabat"],
+      "answer": "Paket bundling mulai dari Sahabat Manis (Rp 38.000) sampai Kasih Sayang (Rp 150.000-180.000). Cocok untuk berdua sekamar! Cek di halaman Layanan ya."
+    },
+    {
+      "key": "gentle_clean",
+      "samples": ["gentle", "gentle clean", "paling lengkap"],
+      "answer": "Gentle Clean (Rp 150.000-250.000) — paket terlengkap: sapu, pel, vakum karpet & kasur, kipas, cuci piring, room spray, pengelapan, 1 KM, sampai angkut sampah."
+    },
+    {
+      "key": "jastip",
+      "samples": ["jastip", "titip", "mcd", "kfc", "familia", "kopken"],
+      "answer": "Paket Jastip mulai Rp 2.000/km — bisa titip beli dari Familia, McD, KFC, Belkop, Kopken, dan merchant sekitar PENS/PPNS."
+    },
+    {
+      "key": "cara_booking",
+      "samples": ["cara booking", "cara pesan", "bagaimana pesan", "gimana pesan", "cara order"],
+      "answer": "Caranya gampang: 1) Pilih layanan, 2) Tentukan jadwal, 3) Bayar, 4) Dapat notif WhatsApp, 5) Pantau real-time. Bisa langsung dari halaman Booking!"
+    },
+    {
+      "key": "area",
+      "samples": ["area mana", "jangkauan", "lokasi", "sukolilo", "surabaya"],
+      "answer": "Saat ini Dorm Care melayani area Kecamatan Sukolilo, Surabaya dan sekitarnya. Termasuk area PENS, PPNS, ITS, dan UNAIR."
+    },
+    {
+      "key": "jam_operasional",
+      "samples": ["jam buka", "jam operasional", "buka kapan", "weekday", "weekend"],
+      "answer": "Dorm Care buka Senin-Jumat pukul 08.00-20.00 WIB dan Sabtu pukul 08.00-17.00 WIB."
+    },
+    {
+      "key": "pembayaran",
+      "samples": ["bayar", "pembayaran", "transfer", "qris", "gopay", "shopeepay", "dana"],
+      "answer": "Metode pembayaran yang tersedia: QRIS, e-wallet (ShopeePay, DANA, GoPay), dan transfer bank (BCA, Mandiri, BNI, BRI)."
+    },
+    {
+      "key": "member",
+      "samples": ["member", "level", "bronze", "silver", "gold", "keuntungan"],
+      "answer": "Ada 3 level member: Bronze (baru), Silver (5+ order, diskon 5%), Gold (15+ order, diskon 10% + benefit eksklusif). Makin sering pesan, makin banyak untungnya!"
+    },
+    {
+      "key": "reschedule",
+      "samples": ["reschedule", "ganti jadwal", "ubah jadwal", "jadwal berubah"],
+      "answer": "Reschedule bisa dilakukan dari halaman Riwayat selama status masih pending, diterima, atau mitra menuju lokasi."
+    },
+    {
+      "key": "kontak_admin",
+      "samples": ["kontak", "hubungi", "admin", "customer service", "cs"],
+      "answer": "Kamu bisa langsung hubungi admin via WhatsApp atau klik tombol WhatsApp hijau di kiri bawah layar. Respon cepat!"
+    },
+    {
+      "key": "alat_kebersihan",
+      "samples": ["alat", "bawa alat", "peralatan", "alat kebersihan"],
+      "answer": "Tidak perlu siapkan apa-apa! Tim Dorm Care membawa alat standar kebersihan lengkap. Kalau ada cairan tertentu yang diinginkan, tulis di catatan pesanan."
+    },
+    {
+      "key": "promo",
+      "samples": ["promo", "diskon", "voucher", "kode promo", "dormcare15"],
+      "answer": "Promo aktif: DORMCARE15 (diskon 15% untuk 150 order pertama), ANKOS10 (potongan Rp 10.000), BUNDLING8 (diskon 8% paket bundling). Cek halaman Promo untuk lengkapnya!"
+    }
+  ]
+}
