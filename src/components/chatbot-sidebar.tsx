@@ -45,34 +45,50 @@ export function ChatbotSidebar() {
       setMessages((prev) => [...prev, { id: asstId, role: "assistant", content: "" }]);
 
       let buffer = "";
+      let isDataStreamProtocol = false;
+      let firstChunk = true;
 
       while (!done) {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
         if (value) {
-          buffer += decoder.decode(value, { stream: !done });
-          const lines = buffer.split("\n");
-          // Keep the last incomplete line in the buffer
-          buffer = lines.pop() || "";
-
-          let hasUpdates = false;
-          for (const line of lines) {
-            if (line.startsWith('0:')) {
-              try {
-                const textChunk = JSON.parse(line.slice(2));
-                streamedText += textChunk;
-                hasUpdates = true;
-              } catch (e) {
-                console.error("Vercel stream parsing error:", e, line);
-              }
-            } else if (!line.match(/^[0-9]+:/) && line.trim().length > 0) {
-              // Legacy raw text fallback if endpoint doesn't strictly stream Vercek AI format
-              streamedText += line + "\n";
-              hasUpdates = true;
+          const newText = decoder.decode(value, { stream: !done });
+          
+          if (firstChunk) {
+            firstChunk = false;
+            if (newText.startsWith('0:')) {
+              isDataStreamProtocol = true;
             }
           }
 
-          if (hasUpdates) {
+          if (isDataStreamProtocol) {
+            buffer += newText;
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || ""; // Keep the last incomplete chunk
+
+            let hasUpdates = false;
+            for (const line of lines) {
+              if (line.startsWith('0:')) {
+                try {
+                  const textChunk = JSON.parse(line.slice(2));
+                  streamedText += textChunk;
+                  hasUpdates = true;
+                } catch (e) {
+                  console.error("Vercel stream parsing error:", e, line);
+                }
+              }
+            }
+            
+            if (hasUpdates) {
+              setMessages((prev) => {
+                const next = [...prev];
+                next[next.length - 1] = { id: asstId, role: "assistant", content: streamedText };
+                return next;
+              });
+            }
+          } else {
+            // Raw text stream directly appended
+            streamedText += newText;
             setMessages((prev) => {
               const next = [...prev];
               next[next.length - 1] = { id: asstId, role: "assistant", content: streamedText };

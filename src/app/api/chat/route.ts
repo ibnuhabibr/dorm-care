@@ -34,5 +34,5 @@ export async function POST(request: Request) {
     temperature: 0.4,
   });
 
-  return result.toTextStreamResponse();
+  return result.toDataStreamResponse();
 }

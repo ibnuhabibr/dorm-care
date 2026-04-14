@@ -6,9 +6,9 @@ import { serviceCatalog } from "@/data/site-data";
 import { formatRupiah } from "@/lib/utils";
 
 type DetailPageProps = {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 };
 
 const iconMap = {
@@ -24,8 +24,9 @@ export function generateStaticParams() {
   return serviceCatalog.map((service) => ({ slug: service.id }));
 }
 
-export default function DetailLayananPage({ params }: DetailPageProps) {
-  const service = serviceCatalog.find((item) => item.id === params.slug);
+export default async function DetailLayananPage({ params }: DetailPageProps) {
+  const resolvedParams = await params;
+  const service = serviceCatalog.find((item) => item.id === resolvedParams.slug);
 
   if (!service) {
     notFound();
