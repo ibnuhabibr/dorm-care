@@ -29,8 +29,8 @@ export function ChatbotSidebar() {
   const [input, setInput] = useState("");
 
   const { messages, status, sendMessage } = useChat({
-    initialMessages: [
-      { id: "welcome-1", role: "assistant", parts: [{ type: "text", text: defaultMessage }] }
+    messages: [
+      { id: "welcome-1", role: "assistant", parts: [{ type: "text", text: defaultMessage }] } as any
     ]
   });
 
