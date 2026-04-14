@@ -1,14 +1,45 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Loader2 } from 'lucide-react';
 import { useBookingStore } from '@/state/booking-store';
-import { serviceCatalog } from '@/data/site-data';
+import { serviceCatalog as fallbackCatalog } from '@/data/site-data'; // Only for type reference or fallback
 import { formatRupiah } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import { useEffect, useState } from 'react';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function Step1Service() {
   const { selectedServiceId, setService, setStep } = useBookingStore();
+  const [catalog, setCatalog] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) {
+        setCatalog(fallbackCatalog);
+        setIsLoading(false);
+        return;
+      }
+      
+      const { data, error } = await supabase.from('services').select('*').eq('is_active', true).order('sort_order', { ascending: true });
+      if (error || !data) {
+        toast.error('Gagal memuat layanan');
+        setCatalog(fallbackCatalog);
+      } else {
+        setCatalog(data.map(d => ({
+          id: d.id,
+          nama: d.name,
+          hargaMin: d.price_min,
+          fitur: d.features || [],
+          deskripsi: d.description
+        })));
+      }
+      setIsLoading(false);
+    };
+    fetchServices();
+  }, []);
 
   const handleSelectService = (serviceId: string, serviceName: string, servicePrice: number) => {
     setService(serviceId, serviceName, servicePrice);
@@ -26,8 +57,13 @@ export default function Step1Service() {
   return (
     <div className="space-y-8">
       {/* Card Container */}
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="animate-spin text-brand-primary size-8" />
+        </div>
+      ) : (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {serviceCatalog.map((service, index) => {
+        {catalog.map((service, index) => {
           const isSelected = selectedServiceId === service.id;
           return (
             <motion.div
@@ -72,7 +108,7 @@ export default function Step1Service() {
 
               {/* Features */}
               <ul className="mb-4 space-y-1 max-h-20 overflow-hidden">
-                {service.fitur.slice(0, 2).map((fitur, i) => (
+                {service.fitur.slice(0, 2).map((fitur: any, i: number) => (
                   <li key={i} className="text-[11px] text-neutral-500 flex items-start gap-2">
                     <span className="text-brand-primary mt-0.5">✓</span>
                     <span>{fitur}</span>
@@ -93,6 +129,7 @@ export default function Step1Service() {
           );
         })}
       </div>
+      )}
 
       {/* Summary */}
       {selectedServiceId && (
@@ -104,11 +141,11 @@ export default function Step1Service() {
           <p className="text-sm font-semibold text-neutral-800">
             Layanan dipilih:{' '}
             <span className="text-brand-primary">
-              {serviceCatalog.find(s => s.id === selectedServiceId)?.nama}
+              {catalog.find(s => s.id === selectedServiceId)?.nama}
             </span>
             {' — '}
             <span className="font-display text-lg font-bold text-brand-primary">
-              {formatRupiah(serviceCatalog.find(s => s.id === selectedServiceId)?.hargaMin || 0)}
+              {formatRupiah(catalog.find(s => s.id === selectedServiceId)?.hargaMin || 0)}
             </span>
           </p>
         </motion.div>

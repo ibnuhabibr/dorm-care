@@ -20,6 +20,7 @@ export default function Step3Confirm() {
     promoCode,
     setPromo,
     selectedServiceId,
+    selectedServiceName,
     selectedServicePrice,
     laundryDistance,
     setStep,
@@ -34,8 +35,6 @@ export default function Step3Confirm() {
   useEffect(() => {
     calculateTotal();
   }, [calculateTotal]);
-
-  const service = serviceCatalog.find((s) => s.id === selectedServiceId);
   const subtotal = selectedServicePrice || 0;
   const laundryFee = laundryDistance ? (laundryDistance === 10 ? 15000 : 0) : 0;
   const currentSubtotal = subtotal + laundryFee;
@@ -103,12 +102,9 @@ export default function Step3Confirm() {
             <h3 className="font-display font-bold text-neutral-900 mb-4">
               Layanan
             </h3>
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-center">
               <div>
-                <p className="font-bold text-neutral-900">{service?.nama}</p>
-                <p className="text-sm text-neutral-600 mt-1">
-                  {service?.deskripsi}
-                </p>
+                <p className="font-bold text-neutral-900">{selectedServiceName}</p>
               </div>
               <p className="font-display font-bold text-lg text-brand-primary">
                 {formatRupiah(subtotal)}

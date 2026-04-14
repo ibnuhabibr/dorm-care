@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { navLinks, notificationCatalog } from "@/data/site-data";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/state/session-store";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -50,7 +51,9 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) await supabase.auth.signOut();
     logout();
     toast.success("Berhasil keluar dari akun.");
     setDropdownOpen(false);
@@ -263,54 +266,119 @@ export function Navbar() {
 
       {/* Mobile Drawer */}
       <AnimatePresence>
-        {open ? (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-neutral-900/70 backdrop-blur-sm lg:hidden"
-            onClick={() => setOpen(false)}
-          >
-            <div className="absolute inset-x-4 top-20 rounded-2xl bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-              <nav className="flex flex-col gap-3">
-                {navLinks.map((link) => {
-                  const active = pathname === link.href;
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setOpen(false)}
-                      className={cn(
-                        "rounded-xl px-4 py-3 text-base font-semibold transition",
-                        active ? "bg-brand-primary-light/30 text-brand-primary" : "text-neutral-700 hover:bg-neutral-100",
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                })}
+        {open && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[100] bg-neutral-900/60 backdrop-blur-sm lg:hidden"
+              onClick={() => setOpen(false)}
+            />
 
+            {/* Sidebar Drawer */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 z-[101] flex w-[320px] max-w-[85vw] flex-col bg-white shadow-2xl lg:hidden"
+            >
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50 px-6 py-5">
                 {user ? (
-                  <Link
-                    href="/notifikasi"
-                    onClick={() => setOpen(false)}
-                    className="rounded-xl border border-brand-primary/20 px-4 py-3 text-base font-semibold text-brand-primary"
-                  >
-                    Notifikasi {unreadNotifications > 0 && `(${unreadNotifications})`}
-                  </Link>
-                ) : null}
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-11 shrink-0 place-content-center rounded-full bg-brand-primary font-bold text-white shadow-sm">
+                      {initial}
+                    </span>
+                    <div>
+                      <h4 className="font-bold text-neutral-900">{user.nama}</h4>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                        {user.membership} Member
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="grid size-11 shrink-0 place-content-center rounded-full bg-brand-primary-light/50 text-brand-primary">
+                      <User className="size-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-neutral-900">Halo, Tamu</h4>
+                      <p className="text-xs text-neutral-500">Masuk untuk memesan</p>
+                    </div>
+                  </div>
+                )}
+                
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="grid size-8 place-content-center rounded-full bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
 
-                {user?.role === "admin" ? (
-                  <Link
-                    href="/admin"
-                    onClick={() => setOpen(false)}
-                    className="rounded-xl border border-brand-primary/20 px-4 py-3 text-base font-semibold text-brand-primary"
-                  >
-                    Buka Admin Panel
-                  </Link>
-                ) : null}
+              {/* Drawer Navigation Links */}
+              <div className="flex-1 overflow-y-auto px-6 py-6">
+                <nav className="flex flex-col gap-2">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-400">Navigasi Utama</p>
+                  {navLinks.map((link) => {
+                    const active = pathname === link.href;
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                          "rounded-xl px-4 py-3 text-sm font-semibold transition-all",
+                          active 
+                            ? "bg-brand-primary text-white shadow-md shadow-brand-primary/20" 
+                            : "text-neutral-700 hover:bg-neutral-100",
+                        )}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+                  
+                  <div className="my-3 h-px bg-neutral-100" />
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-400">Akun Saya</p>
 
+                  {user ? (
+                    <>
+                      <Link
+                        href="/notifikasi"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-neutral-700 transition-all hover:bg-neutral-100"
+                      >
+                        <span>Notifikasi</span>
+                        {unreadNotifications > 0 && (
+                          <span className="grid h-5 min-w-5 place-content-center rounded-full bg-error px-1 text-[10px] text-white">
+                            {unreadNotifications}
+                          </span>
+                        )}
+                      </Link>
+                      
+                      {user.role === "admin" && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setOpen(false)}
+                          className="flex items-center justify-between rounded-xl border border-brand-primary/20 bg-brand-primary-light/10 px-4 py-3 text-sm font-semibold text-brand-primary transition-all"
+                        >
+                          <span>Admin Panel</span>
+                          <ShieldCheck className="size-4" />
+                        </Link>
+                      )}
+                    </>
+                  ) : null}
+                </nav>
+              </div>
+
+              {/* Drawer Footer Actions */}
+              <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-5">
                 {user ? (
                   <button
                     type="button"
@@ -318,32 +386,32 @@ export function Navbar() {
                       handleLogout();
                       setOpen(false);
                     }}
-                    className="rounded-xl border border-red-200 px-4 py-3 text-left text-base font-semibold text-error"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white py-3 text-sm font-semibold text-error shadow-sm transition hover:bg-red-50"
                   >
-                    Keluar Akun
+                    <LogOut className="size-4" /> Keluar Akun
                   </button>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     <Link
                       href="/auth/masuk"
                       onClick={() => setOpen(false)}
-                      className="rounded-xl border border-neutral-200 px-4 py-3 text-center text-sm font-semibold text-neutral-700"
+                      className="rounded-xl border border-neutral-200 bg-white py-3 text-center text-sm font-semibold text-neutral-700 shadow-sm transition hover:border-brand-primary hover:text-brand-primary"
                     >
                       Masuk
                     </Link>
                     <Link
                       href="/auth/daftar"
                       onClick={() => setOpen(false)}
-                      className="rounded-xl bg-brand-primary px-4 py-3 text-center text-sm font-semibold text-white"
+                      className="rounded-xl bg-brand-primary py-3 text-center text-sm font-semibold border border-transparent shadow shadow-brand-primary/20 text-white transition hover:bg-brand-primary-dark"
                     >
                       Daftar
                     </Link>
                   </div>
                 )}
-              </nav>
-            </div>
-          </motion.div>
-        ) : null}
+              </div>
+            </motion.div>
+          </>
+        )}
       </AnimatePresence>
     </header>
   );

@@ -14,105 +14,90 @@ type Message = {
   content: string;
 };
 
-type ChatMemory = {
-  intents: Array<{
-    key: string;
-    samples: string[];
-    answer: string;
-  }>;
-};
-
-const defaultMessage =
-  "Halo, saya Asisten Dorm Care. Saya online 24/7 untuk bantu soal layanan, harga, jadwal, dan status pesanan.";
-
-function fallbackReply(input: string, memory: ChatMemory | null) {
-  const text = input.toLowerCase();
-
-  if (memory) {
-    const matched = memory.intents.find((intent) =>
-      intent.samples.some((sample) => text.includes(sample.toLowerCase())),
-    );
-
-    if (matched) {
-      return matched.answer;
-    }
-  }
-
-  if (text.includes("harga") || text.includes("biaya")) {
-    return "Harga layanan Dorm Care mulai dari Rp 20.000. Kamu bisa cek detail lengkap di halaman Layanan.";
-  }
-
-  if (text.includes("booking") || text.includes("pesan")) {
-    return "Flow booking: pilih layanan, tentukan jadwal, isi detail kamar, lanjut pembayaran prototype, lalu notifikasi WhatsApp dikirim otomatis.";
-  }
-
-  if (text.includes("status") || text.includes("riwayat")) {
-    return "Status pesanan bisa dipantau di halaman Riwayat, dari Pending sampai Selesai.";
-  }
-
-  if (text.includes("admin") || text.includes("whatsapp") || text.includes("kontak")) {
-    return "Silakan klik tombol WhatsApp untuk chat cepat dengan admin Dorm Care.";
-  }
-
-  return "Pertanyaanmu sudah masuk. Pilih quick reply atau lanjut chat agar saya bantu lebih spesifik.";
-}
+const defaultMessage = "Halo, saya Asisten Dorm Care. Saya online 24/7 untuk bantu soal layanan, harga, jadwal, dan status pesanan.";
 
 export function ChatbotSidebar() {
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState("");
+  const [messages, setMessages] = useState<{id: string, role: string, content: string}[]>([
+    { id: "welcome-1", role: "assistant", content: defaultMessage }
+  ]);
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [memory, setMemory] = useState<ChatMemory | null>(null);
-  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: defaultMessage }]);
 
-  const canSend = useMemo(() => draft.trim().length > 0 && !isLoading, [draft, isLoading]);
-
-  useEffect(() => {
-    const loadMemory = async () => {
-      try {
-        const response = await fetch("/chatbot-memory.json");
-        if (!response.ok) {
-          return;
-        }
-        const data = (await response.json()) as ChatMemory;
-        setMemory(data);
-      } catch {
-        setMemory(null);
-      }
-    };
-
-    void loadMemory();
-  }, []);
-
-  const sendMessage = async (rawMessage: string) => {
-    const message = rawMessage.trim();
-    if (!message) {
-      return;
-    }
-
-    setMessages((prev) => [...prev, { role: "user", content: message }]);
-    setDraft("");
+  const sendMessage = async (newMessages: typeof messages) => {
     setIsLoading(true);
+    setMessages(newMessages);
 
     try {
-      const response = await fetch("/api/chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ messages: newMessages }),
       });
 
-      if (!response.ok) {
-        throw new Error("Unable to reach assistant");
-      }
+      if (!res.body) throw new Error("No body");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let streamedText = "";
+      let done = false;
 
-      const data = (await response.json()) as { reply?: string };
-      const reply = data.reply?.trim() || fallbackReply(message, memory);
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-    } catch {
-      setMessages((prev) => [...prev, { role: "assistant", content: fallbackReply(message, memory) }]);
+      const asstId = Date.now().toString();
+      setMessages((prev) => [...prev, { id: asstId, role: "assistant", content: "" }]);
+
+      let buffer = "";
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          buffer += decoder.decode(value, { stream: !done });
+          const lines = buffer.split("\n");
+          // Keep the last incomplete line in the buffer
+          buffer = lines.pop() || "";
+
+          let hasUpdates = false;
+          for (const line of lines) {
+            if (line.startsWith('0:')) {
+              try {
+                const textChunk = JSON.parse(line.slice(2));
+                streamedText += textChunk;
+                hasUpdates = true;
+              } catch (e) {
+                console.error("Vercel stream parsing error:", e, line);
+              }
+            } else if (!line.match(/^[0-9]+:/) && line.trim().length > 0) {
+              // Legacy raw text fallback if endpoint doesn't strictly stream Vercek AI format
+              streamedText += line + "\n";
+              hasUpdates = true;
+            }
+          }
+
+          if (hasUpdates) {
+            setMessages((prev) => {
+              const next = [...prev];
+              next[next.length - 1] = { id: asstId, role: "assistant", content: streamedText };
+              return next;
+            });
+          }
+        }
+      }
+    } catch (error) {
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+    sendMessage([...messages, { id: Date.now().toString(), role: "user", content: input }]);
+    setInput("");
+  };
+
+  const canSend = useMemo(() => (input || "").trim().length > 0 && !isLoading, [input, isLoading]);
+
 
   return (
     <div className="fixed bottom-5 right-5 z-50 sm:bottom-8 sm:right-8">
@@ -187,7 +172,7 @@ export function ChatbotSidebar() {
                   <button
                     key={action}
                     type="button"
-                    onClick={() => sendMessage(action)}
+                    onClick={() => sendMessage([...messages, { id: Date.now().toString(), role: "user", content: action }])}
                     className="rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-600 transition hover:border-brand-primary/30 hover:text-brand-primary-dark"
                   >
                     {action}
@@ -197,14 +182,11 @@ export function ChatbotSidebar() {
 
               <form
                 className="flex items-center gap-2"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  void sendMessage(draft);
-                }}
+                onSubmit={handleSubmit}
               >
                 <input
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
+                  value={input}
+                  onChange={handleInputChange}
                   placeholder="Ketik pertanyaan kamu..."
                   className="h-10 flex-1 rounded-xl border border-neutral-200 px-3 text-sm outline-none ring-brand-primary/30 transition focus:ring"
                 />

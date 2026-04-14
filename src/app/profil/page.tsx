@@ -1,26 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Shield, Bell, Award, CheckCircle2, ChevronRight, LogOut, Camera, Lock, KeyRound } from "lucide-react";
 import toast from "react-hot-toast";
 import { useSessionStore } from "@/state/session-store";
 import { useRouter } from "next/navigation";
-
-// Mock user data
-const mockUser = {
-  firstName: "Ibnu",
-  lastName: "Habib",
-  email: "ibnu.habib@students.pens.ac.id",
-  phone: "081234567890",
-  level: "Bronze",
-  totalOrders: 12,
-  totalSpent: "Rp 425.000",
-  joinDate: "Oktober 2025",
-  nextLevelCriteria: 3,
-  benefits: [
-    "Room Spray gratis 1x/bln"
-  ]
-};
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const tabs = [
   { id: "personal", label: "Informasi Pribadi", icon: User },
@@ -34,10 +19,67 @@ export default function ProfilPage() {
   const { user, clearUser } = useSessionStore();
   const [activeTab, setActiveTab] = useState("personal");
 
-  // Tab 1: Personal
-  const [firstName, setFirstName] = useState(mockUser.firstName);
-  const [lastName, setLastName] = useState(mockUser.lastName);
-  const [phone, setPhone] = useState(mockUser.phone);
+  // Base profile data
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+
+  // Stats from PG
+  const [stats, setStats] = useState({
+    level: "Bronze",
+    totalOrders: 0,
+    totalSpent: "Rp 0",
+    joinDate: "Loading...",
+    nextLevelCriteria: 5,
+    benefits: ["Room spray gratis 1x"]
+  });
+
+  useEffect(() => {
+    if (user) {
+      const parts = user.nama.split(" ");
+      setFirstName(parts[0] || "");
+      setLastName(parts.slice(1).join(" ") || "");
+      setPhone(user.noHp || "");
+      setEmail(user.email || "");
+
+      const fetchStats = async () => {
+        const supabase = getSupabaseBrowserClient();
+        if (!supabase) return;
+
+        const { data } = await supabase
+          .from("profiles")
+          .select("member_level, total_orders, total_spent, created_at")
+          .eq("id", user.id)
+          .single();
+
+        if (data) {
+          const levelMap: Record<string, string> = {
+            bronze: "Bronze",
+            silver: "Silver",
+            gold: "Gold"
+          };
+          const tOrders = data.total_orders || 0;
+          let nextLevel = 5 - tOrders;
+          if (data.member_level === "silver") nextLevel = 15 - tOrders;
+          if (data.member_level === "gold") nextLevel = 0;
+
+          setStats({
+            level: levelMap[data.member_level] || "Bronze",
+            totalOrders: tOrders,
+            totalSpent: `Rp ${(data.total_spent || 0).toLocaleString("id-ID")}`,
+            joinDate: new Date(data.created_at).toLocaleDateString("id-ID", { month: "long", year: "numeric" }),
+            nextLevelCriteria: Math.max(0, nextLevel),
+            benefits: data.member_level === "gold" ? ["Diskon otomatis", "Prioritas jadwal"] : ["Room spray gratis"]
+          });
+        }
+      };
+
+      if (user.id) {
+        void fetchStats();
+      }
+    }
+  }, [user]);
 
   // Tab 2: Security
   const [oldPassword, setOldPassword] = useState("");
@@ -49,7 +91,7 @@ export default function ProfilPage() {
   const [notifEmail, setNotifEmail] = useState(false);
   const [notifReminder, setNotifReminder] = useState(true);
 
-  const initial = user?.nama?.charAt(0) || mockUser.firstName.charAt(0);
+  const initial = firstName ? firstName.charAt(0) : "U";
 
   const handleSavePersonal = () => {
     toast.success("Informasi pribadi berhasil diperbarui!");
@@ -66,7 +108,11 @@ export default function ProfilPage() {
     setConfirmPassword("");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     clearUser();
     toast.success("Berhasil keluar.");
     router.push("/");
@@ -95,7 +141,7 @@ export default function ProfilPage() {
                 </button>
               </div>
               <h2 className="font-display text-xl font-bold text-neutral-900">{firstName} {lastName}</h2>
-              <p className="text-sm text-neutral-500 mb-6">{mockUser.email}</p>
+              <p className="text-sm text-neutral-500 mb-6">{email}</p>
 
               <div className="bg-gradient-to-br from-[#CD7F32] to-[#B87333] rounded-2xl p-5 text-white text-left relative overflow-hidden mb-6">
                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-[30px] rounded-full" />
@@ -105,14 +151,14 @@ export default function ProfilPage() {
                    </div>
                    <div>
                      <p className="text-[10px] font-bold uppercase tracking-widest text-white/80">Member Level</p>
-                     <p className="font-display font-bold text-xl drop-shadow-sm">{mockUser.level}</p>
+                     <p className="font-display font-bold text-xl drop-shadow-sm">{stats.level}</p>
                    </div>
                  </div>
 
                  <div className="space-y-2 mb-4">
                    <div className="flex justify-between text-xs font-bold text-white/90">
                      <span>Progress</span>
-                     <span>{mockUser.nextLevelCriteria} pesanan lagi</span>
+                     <span>{stats.nextLevelCriteria} pesanan lagi</span>
                    </div>
                    <div className="w-full bg-black/20 h-2 rounded-full overflow-hidden">
                      <div className="bg-white h-full w-[60%] rounded-full relative">
@@ -125,7 +171,7 @@ export default function ProfilPage() {
                  <div className="pt-3 border-t border-white/20">
                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/80 mb-2">Benefit Aktif</p>
                    <ul className="text-xs space-y-1">
-                     {mockUser.benefits.map((b, i) => (
+                     {stats.benefits.map((b, i) => (
                        <li key={i} className="flex items-center gap-1.5"><CheckCircle2 className="size-3" /> {b}</li>
                      ))}
                    </ul>
@@ -135,14 +181,14 @@ export default function ProfilPage() {
               <div className="grid grid-cols-2 gap-3 text-left">
                 <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-100">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Pesanan</p>
-                  <p className="font-display text-lg font-extrabold text-neutral-900">{mockUser.totalOrders}</p>
+                  <p className="font-display text-lg font-extrabold text-neutral-900">{stats.totalOrders}</p>
                 </div>
                 <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-100">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Pengeluaran</p>
-                  <p className="font-display text-lg font-extrabold text-neutral-900">{mockUser.totalSpent}</p>
+                  <p className="font-display text-lg font-extrabold text-neutral-900">{stats.totalSpent}</p>
                 </div>
               </div>
-              <p className="text-[10px] text-neutral-400 mt-4">Bergabung sejak {mockUser.joinDate}</p>
+              <p className="text-[10px] text-neutral-400 mt-4">Bergabung sejak {stats.joinDate}</p>
             </div>
 
             <button 
@@ -208,7 +254,7 @@ export default function ProfilPage() {
 
                   <div className="mb-8">
                     <label className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 block">Alamat Email</label>
-                    <input type="email" value={mockUser.email} disabled className="w-full rounded-xl border border-neutral-100 bg-neutral-100 px-4 py-3 text-sm outline-none text-neutral-500 cursor-not-allowed" />
+                    <input type="email" value={email} disabled className="w-full rounded-xl border border-neutral-100 bg-neutral-100 px-4 py-3 text-sm outline-none text-neutral-500 cursor-not-allowed" />
                     <p className="text-[11px] text-brand-accent mt-1.5 ml-1 flex items-center gap-1"><Lock className="size-3" /> Email ditautkan dari akun Google</p>
                   </div>
 

@@ -1,65 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, Filter, MessageSquare, ChevronDown, ChevronUp, MapPin, CreditCard, RotateCcw, Star, Phone, CheckCircle2, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { formatRupiah } from "@/lib/utils";
 
-// Mock Data
-const mockOrders = [
-  {
-    id: "DC-8A2B9C",
-    date: "2026-04-14T09:00:00",
-    serviceName: "Pro Basic Clean",
-    price: 35000,
-    status: "in_progress",
-    paymentMethod: "QRIS",
-    address: "Asrama PENS Blok C Kamar 402",
-    notes: "Tolong bawa pewangi lavender",
-    partner: "Budi Santoso",
-    timeline: [
-      { status: "Diterima", time: "08:15", done: true },
-      { status: "Mitra Menuju", time: "08:45", done: true },
-      { status: "Dikerjakan", time: "09:00", done: true },
-      { status: "Selesai", time: null, done: false },
-    ]
-  },
-  {
-    id: "DC-1X9M4P",
-    date: "2026-04-10T14:00:00",
-    serviceName: "Special Clean (5km)",
-    price: 78000,
-    status: "completed",
-    paymentMethod: "Transfer BCA",
-    address: "Perumdos ITS Blok U No. 12",
-    notes: "",
-    partner: "Siti Aminah",
-    reviewed: false,
-    timeline: [
-      { status: "Diterima", time: "13:00", done: true },
-      { status: "Mitra Menuju", time: "13:30", done: true },
-      { status: "Dikerjakan", time: "14:00", done: true },
-      { status: "Selesai", time: "15:30", done: true },
-    ]
-  },
-  {
-    id: "DC-5K3L2N",
-    date: "2026-04-05T10:00:00",
-    serviceName: "Basic Clean",
-    price: 20000,
-    status: "cancelled",
-    paymentMethod: "ShopeePay",
-    address: "Keputih Gang 3 No. 45",
-    notes: "Kost warna biru",
-    partner: null,
-    timeline: [
-      { status: "Diterima", time: "09:00", done: true },
-      { status: "Dibatalkan", time: "09:15", done: true },
-    ]
-  }
-];
+import { useSessionStore } from "@/state/session-store";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const tabs = [
   { id: "all", label: "Semua" },
@@ -69,12 +18,60 @@ const tabs = [
 ];
 
 export default function RiwayatPage() {
+  const { user } = useSessionStore();
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedOrders, setExpandedOrders] = useState<string[]>([]);
   const [reviewModal, setReviewModal] = useState<{isOpen: boolean, orderId: string | null}>({ isOpen: false, orderId: null });
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
+  
+  const [orders, setOrders] = useState<any[]>([]);
+  const [stats, setStats] = useState({ totalOrders: 0, activeOrders: 0, totalSpent: 0 });
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!user?.id) return;
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) return;
+
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (data && !error) {
+        const mappedOrders = data.map(d => ({
+          id: d.order_number,
+          dbId: d.id,
+          date: d.created_at,
+          serviceName: d.service_name,
+          price: d.total_amount,
+          status: d.status,
+          paymentMethod: "-",
+          address: d.address,
+          notes: d.notes,
+          partner: d.mitra_name || "Mencari Mitra...",
+          reviewed: !!d.rating,
+          timeline: [
+            { status: "Diterima", time: new Date(d.created_at).toLocaleTimeString("id", {hour:'2-digit', minute:'2-digit'}), done: true },
+            { status: "Menunggu", time: null, done: ["confirmed", "on_the_way", "in_progress", "completed"].includes(d.status) },
+            { status: "Dikerjakan", time: null, done: ["in_progress", "completed"].includes(d.status) },
+            { status: "Selesai", time: null, done: d.status === "completed" },
+          ]
+        }));
+        setOrders(mappedOrders);
+
+        setStats({
+          totalOrders: mappedOrders.length,
+          activeOrders: mappedOrders.filter(o => ["pending_confirmation", "confirmed", "on_the_way", "in_progress"].includes(o.status)).length,
+          totalSpent: mappedOrders.filter(o => o.status === "completed").reduce((sum, o) => sum + o.price, 0)
+        });
+      }
+    };
+    fetchOrders();
+  }, [user?.id]);
 
   const toggleExpand = (id: string) => {
     setExpandedOrders(prev => 
@@ -82,7 +79,7 @@ export default function RiwayatPage() {
     );
   };
 
-  const filteredOrders = mockOrders.filter(order => {
+  const filteredOrders = orders.filter(order => {
     const matchesTab = activeTab === "all" 
       || (activeTab === "active" && ["pending_confirmation", "confirmed", "on_the_way", "in_progress"].includes(order.status))
       || (activeTab === "completed" && order.status === "completed")
@@ -124,15 +121,15 @@ export default function RiwayatPage() {
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
               <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Total Pesanan</p>
-              <p className="font-display text-2xl font-bold text-neutral-900">12</p>
+              <p className="font-display text-2xl font-bold text-neutral-900">{stats.totalOrders}</p>
             </div>
             <div className="bg-brand-primary-light/30 p-5 rounded-2xl border border-brand-primary/20 shadow-sm">
               <p className="text-xs font-bold text-brand-primary-dark uppercase tracking-wider mb-1">Pesanan Aktif</p>
-              <p className="font-display text-2xl font-bold text-brand-primary-dark">1</p>
+              <p className="font-display text-2xl font-bold text-brand-primary-dark">{stats.activeOrders}</p>
             </div>
             <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
               <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Total Pengeluaran</p>
-              <p className="font-display text-2xl font-bold text-neutral-900">{formatRupiah(425000)}</p>
+              <p className="font-display text-2xl font-bold text-neutral-900">{formatRupiah(stats.totalSpent)}</p>
             </div>
           </div>
         </div>
@@ -270,8 +267,8 @@ export default function RiwayatPage() {
                         <div className="space-y-4">
                            <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Timeline Aktivitas</p>
                            <div className="space-y-3">
-                             {order.timeline.map((tl, i) => (
-                               <div key={i} className={`flex items-center justify-between text-sm ${tl.done ? "text-neutral-800" : "text-neutral-400"}`}>
+                             {order.timeline.map((tl: any, i: number) => (
+                               <div key={i} className={`flex items-center justify-between text-xs ${tl.done ? "text-neutral-900" : "text-neutral-400"}`}>
                                  <div className="flex items-center gap-2">
                                    <div className={`size-1.5 rounded-full ${tl.done ? "bg-brand-primary" : "bg-neutral-300"}`} />
                                    <span>{tl.status}</span>
@@ -348,7 +345,7 @@ export default function RiwayatPage() {
                <XCircle className="size-5" />
             </button>
             <h3 className="font-display text-2xl font-bold text-neutral-900 mb-2">Bagaimana kualitas layanan kami?</h3>
-            <p className="text-sm text-neutral-500 mb-8">Berikan ulasan jujur untuk {mockOrders.find(o => o.id === reviewModal.orderId)?.serviceName}</p>
+            <p className="text-sm text-neutral-500 mb-8">Berikan ulasan jujur untuk {orders.find((o: any) => o.id === reviewModal.orderId)?.partner}</p>
             
             <div className="flex justify-center gap-2 mb-8">
               {[1,2,3,4,5].map(star => (

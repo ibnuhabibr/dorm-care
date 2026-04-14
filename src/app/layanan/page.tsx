@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { ArrowRight, Calculator, Search, SlidersHorizontal, TicketPercent } from "lucide-react";
 
 import { ServiceCard } from "@/components/service-card";
-import { promoCatalog, serviceCatalog, type ServiceCategory } from "@/data/site-data";
-
+import { type ServiceCategory, type PromoItem, type ServiceItem } from "@/data/site-data";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const sections: Array<{ key: "semua" | ServiceCategory; title: string; description: string }> = [
   { key: "semua", title: "Semua Layanan", description: "Lihat seluruh katalog layanan Dorm Care" },
@@ -19,6 +19,58 @@ export default function LayananPage() {
   const [activeTab, setActiveTab] = useState<(typeof sections)[number]["key"]>("semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"default" | "murah" | "mahal">("default");
+
+  const [serviceCatalog, setServiceCatalog] = useState<ServiceItem[]>([]);
+  const [promoCatalog, setPromoCatalog] = useState<PromoItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) return;
+
+      const [resServices, resPromos] = await Promise.all([
+        supabase.from('services').select('*').eq('is_active', true).order('sort_order', { ascending: true }),
+        supabase.from('promo_codes').select('*').eq('is_active', true).order('created_at', { ascending: false })
+      ]);
+
+      if (resServices.data) {
+        setServiceCatalog(
+          resServices.data.map((d: any) => ({
+            id: d.id,
+            nama: d.name,
+            deskripsi: d.description,
+            kategori: d.category,
+            hargaMin: d.price_min,
+            hargaMax: d.price_max,
+            fitur: d.features || [],
+            badge: d.badge,
+            icon: d.icon,
+          }))
+        );
+      }
+
+      if (resPromos.data) {
+        setPromoCatalog(
+          resPromos.data.map((d: any) => ({
+            id: d.id || d.code,
+            kode: d.code,
+            nama: d.name,
+            deskripsi: d.description,
+            tipe: d.type === "percentage" ? "persen" : "nominal",
+            nilai: d.value,
+            minTransaksi: d.min_transaction || 0,
+            berlakuSampai: d.expires_at || "Tanpa Batas Waktu",
+            kategori: "diskon",
+            aktif: true
+          }))
+        );
+      }
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
 
   const sectionRefs = useRef<Record<(typeof sections)[number]["key"], HTMLElement | null>>({
     semua: null,
@@ -51,7 +103,7 @@ export default function LayananPage() {
     if (sortBy === "murah") result = [...result].sort((a, b) => a.hargaMin - b.hargaMin);
     if (sortBy === "mahal") result = [...result].sort((a, b) => b.hargaMin - a.hargaMin);
     return result;
-  }, [searchQuery, sortBy]);
+  }, [searchQuery, sortBy, serviceCatalog]);
 
   return (
     <div className="pb-20 pt-8">

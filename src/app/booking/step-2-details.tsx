@@ -187,12 +187,12 @@ export default function Step2Details() {
                 selected={selectedDateObj || undefined}
                 onSelect={(date) => {
                   if (date) {
-                    const dateStr = date.toISOString().split('T')[0];
+                    const dateStr = format(date, 'yyyy-MM-dd');
                     setDetails(address, area, dateStr, scheduledTime ?? '', notes);
                   }
                 }}
                 locale={localeId}
-                disabled={(date) => date < new Date()}
+                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                 modifiersClassNames={{
                   selected:
                     'bg-brand-primary text-white hover:bg-brand-primary-dark font-bold',
