@@ -8,20 +8,68 @@ import { AdminNav } from "@/components/admin-nav";
 import { orderCatalog, adminUsers, reportDaily } from "@/data/site-data";
 import { formatRupiah } from "@/lib/utils";
 
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
+
 export default function AdminDashboardPage() {
-  const totalPendapatan = useMemo(
-    () => reportDaily.reduce((sum, item) => sum + item.pendapatan, 0),
-    [],
-  );
+  const [dbStats, setDbStats] = useState({ totalOrders: 0, totalUsers: 0, totalRevenue: 0, activeOrders: 0 });
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) return;
+
+      // Fetch Profiles count
+      const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+      
+      // Fetch Orders stats
+      const { data: orders } = await supabase.from('orders').select('status, total_amount, id, order_number, profiles(first_name, last_name, phone), service_name, created_at').order('created_at', { ascending: false });
+      
+      if (orders) {
+        const activeCount = orders.filter(o => !["completed", "cancelled"].includes(o.status)).length;
+        const totalRev = orders.filter(o => o.status === "completed").reduce((sum, o) => sum + (o.total_amount || 0), 0);
+        
+        setDbStats({
+          totalOrders: orders.length,
+          totalUsers: userCount || 0,
+          totalRevenue: totalRev,
+          activeOrders: activeCount
+        });
+
+        // Map recent orders for display
+        const mappedRecent = orders.slice(0, 5).map((d: any) => {
+          const mapStatus: Record<string, string> = {
+            'pending_confirmation': 'pending',
+            'confirmed': 'diterima',
+            'on_the_way': 'menuju',
+            'in_progress': 'dikerjakan',
+            'completed': 'selesai',
+            'cancelled': 'dibatalkan'
+          };
+          return {
+            id: d.order_number,
+            namaUser: d.profiles ? (Array.isArray(d.profiles) ? `${d.profiles[0]?.first_name} ${d.profiles[0]?.last_name || ''}`.trim() : `${d.profiles?.first_name} ${d.profiles?.last_name || ''}`.trim()) : "Unknown",
+            layananNama: d.service_name,
+            total: d.total_amount,
+            status: mapStatus[d.status] || 'pending'
+          };
+        });
+        setRecentOrders(mappedRecent);
+      }
+      setIsLoading(false);
+    };
+
+    void fetchData();
+  }, []);
 
   const stats = [
-    { label: "Total Pesanan", value: String(orderCatalog.length), trend: "+12%", color: "text-blue-600", bg: "bg-blue-50", icon: ShoppingBag },
-    { label: "Total Pengguna", value: String(adminUsers.length), trend: "+5%", color: "text-brand-primary", bg: "bg-brand-primary-light/20", icon: Users },
-    { label: "Pendapatan Minggu Ini", value: formatRupiah(totalPendapatan), trend: "+18%", color: "text-green-600", bg: "bg-green-50", icon: DollarSign },
-    { label: "Pesanan Aktif", value: String(orderCatalog.filter((o) => !["selesai", "dibatalkan"].includes(o.status)).length), trend: "", color: "text-orange-500", bg: "bg-amber-50", icon: Activity },
+    { label: "Total Pesanan", value: String(dbStats.totalOrders), trend: "-", color: "text-blue-600", bg: "bg-blue-50", icon: ShoppingBag },
+    { label: "Total Pengguna", value: String(dbStats.totalUsers), trend: "-", color: "text-brand-primary", bg: "bg-brand-primary-light/20", icon: Users },
+    { label: "Total Pendapatan (Selesai)", value: formatRupiah(dbStats.totalRevenue), trend: "-", color: "text-green-600", bg: "bg-green-50", icon: DollarSign },
+    { label: "Pesanan Aktif", value: String(dbStats.activeOrders), trend: "-", color: "text-orange-500", bg: "bg-amber-50", icon: Activity },
   ];
-
-  const recentOrders = orderCatalog.slice(0, 5);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

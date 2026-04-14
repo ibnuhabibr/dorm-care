@@ -25,6 +25,15 @@ export async function createOrder(data: {
   const orderNumber = `ORD-${dateStr}-${randomStr}`;
 
   try {
+    // Ensure profile exists to prevent foreign key constraint failure
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('profiles').upsert({
+        id: data.userId,
+        first_name: user.user_metadata?.first_name || user.email?.split("@")[0] || 'User',
+      }, { onConflict: 'id', ignoreDuplicates: true });
+    }
+
     const { data: order, error } = await supabase
       .from('orders')
       .insert({

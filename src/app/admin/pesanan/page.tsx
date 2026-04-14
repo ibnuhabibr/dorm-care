@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Search, CheckCircle2, Clock, XCircle, Phone, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -36,11 +36,85 @@ const nextStatus: Partial<Record<OrderItem["status"], OrderItem["status"]>> = {
   dikerjakan: "selesai",
 };
 
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+
 export default function AdminPesananPage() {
-  const [orders, setOrders] = useState(orderCatalog);
+  const [orders, setOrders] = useState<(OrderItem & { dbId?: string; userId?: string })[]>([]);
   const [filter, setFilter] = useState<StatusKey>("semua");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Status mapping
+  const dbToAppStatus = (dbStatus: string): OrderItem["status"] => {
+    const map: Record<string, OrderItem["status"]> = {
+      'pending_confirmation': 'pending',
+      'confirmed': 'diterima',
+      'on_the_way': 'menuju',
+      'in_progress': 'dikerjakan',
+      'completed': 'selesai',
+      'cancelled': 'dibatalkan'
+    };
+    return map[dbStatus] || 'pending';
+  };
+
+  const appToDbStatus = (appStatus: OrderItem["status"]): string => {
+    const map: Record<string, string> = {
+      'pending': 'pending_confirmation',
+      'diterima': 'confirmed',
+      'menuju': 'on_the_way',
+      'dikerjakan': 'in_progress',
+      'selesai': 'completed',
+      'dibatalkan': 'cancelled'
+    };
+    return map[appStatus] || 'pending_confirmation';
+  };
+
+  const fetchOrders = async () => {
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) return;
+    
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        profiles (
+          first_name,
+          last_name,
+          phone
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast.error("Gagal mengambil pesanan: " + error.message);
+      setIsLoading(false);
+      return;
+    }
+
+    if (data) {
+      const mappedOrders = data.map((d: any) => ({
+        id: d.order_number,
+        dbId: d.id, // Supabase UUID
+        userId: d.user_id,
+        namaUser: d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name || ''}`.trim() : "Unknown",
+        noHp: d.profiles?.phone || d.mitra_phone || "-",
+        layananId: d.service_id,
+        layananNama: d.service_name,
+        harga: d.total_amount,
+        jadwalWaktu: new Date(`${d.scheduled_date}T${d.scheduled_time}`).toISOString(),
+        lokasi: d.address,
+        status: dbToAppStatus(d.status)
+      }));
+      setOrders(mappedOrders);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    void fetchOrders();
+  }, []);
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {
@@ -61,32 +135,60 @@ export default function AdminPesananPage() {
     batal: orders.filter((o) => o.status === "dibatalkan").length,
   }), [orders]);
 
-  const advanceStatus = (id: string) => {
+  const updateOrderStatus = async (dbId: string, newAppStatus: OrderItem["status"]) => {
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) return false;
+
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: appToDbStatus(newAppStatus) })
+      .eq('id', dbId);
+
+    if (error) {
+      toast.error("Gagal update status: " + error.message);
+      return false;
+    }
+    return true;
+  };
+
+  const advanceStatus = async (id: string, dbId?: string) => {
+    const order = orders.find(o => o.id === id);
+    if (!order) return;
+    
+    const next = nextStatus[order.status];
+    if (!next) {
+      toast.error("Status sudah final.");
+      return;
+    }
+
+    if (dbId) {
+      const success = await updateOrderStatus(dbId, next);
+      if (!success) return;
+    }
+
+    toast.success(`Status ${id} diubah ke ${next}.`);
     setOrders((prev) =>
-      prev.map((o) => {
-        if (o.id !== id) return o;
-        const next = nextStatus[o.status];
-        if (!next) {
-          toast.error("Status sudah final.");
-          return o;
-        }
-        toast.success(`Status ${o.id} diubah ke ${next}.`);
-        return { ...o, status: next };
-      }),
+      prev.map((o) => o.id === id ? { ...o, status: next } : o)
     );
   };
 
-  const cancelOrder = (id: string) => {
+  const cancelOrder = async (id: string, dbId?: string) => {
+    const order = orders.find(o => o.id === id);
+    if (!order) return;
+
+    if (order.status === "selesai" || order.status === "dibatalkan") {
+      toast.error("Status sudah final.");
+      return;
+    }
+
+    if (dbId) {
+      const success = await updateOrderStatus(dbId, "dibatalkan");
+      if (!success) return;
+    }
+
+    toast.success(`Pesanan ${id} dibatalkan.`);
     setOrders((prev) =>
-      prev.map((o) => {
-        if (o.id !== id) return o;
-        if (o.status === "selesai" || o.status === "dibatalkan") {
-          toast.error("Status sudah final.");
-          return o;
-        }
-        toast.success(`Pesanan ${o.id} dibatalkan.`);
-        return { ...o, status: "dibatalkan" as OrderItem["status"] };
-      }),
+      prev.map((o) => o.id === id ? { ...o, status: "dibatalkan" as OrderItem["status"] } : o)
     );
   };
 
@@ -96,18 +198,26 @@ export default function AdminPesananPage() {
     );
   };
 
-  const bulkAdvance = () => {
+  const bulkAdvance = async () => {
     if (selectedIds.length === 0) return toast.error("Pilih pesanan terlebih dahulu.");
+    
+    // Process one by one for simplicity and safety, real prod bulk updates would be preferred
     let count = 0;
-    setOrders((prev) =>
-      prev.map((o) => {
-        if (!selectedIds.includes(o.id)) return o;
-        const next = nextStatus[o.status];
-        if (!next) return o;
-        count++;
-        return { ...o, status: next };
-      }),
-    );
+    for (const id of selectedIds) {
+      const order = orders.find(o => o.id === id);
+      if (!order) continue;
+      
+      const next = nextStatus[order.status];
+      if (!next) continue;
+
+      if (order.dbId) {
+        await updateOrderStatus(order.dbId, next);
+      }
+      count++;
+    }
+    
+    // Refresh entirely after bulk to avoid out of sync
+    await fetchOrders();
     toast.success(`${count} pesanan berhasil dimajukan statusnya.`);
     setSelectedIds([]);
   };
@@ -244,7 +354,7 @@ export default function AdminPesananPage() {
                           {canAdvance && (
                             <button
                               type="button"
-                              onClick={() => advanceStatus(order.id)}
+                              onClick={() => advanceStatus(order.id, order.dbId)}
                               className="inline-flex items-center gap-1 rounded-lg bg-brand-primary px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-brand-primary-dark transition"
                             >
                               <ChevronDown className="size-3 -rotate-90" />
@@ -254,7 +364,7 @@ export default function AdminPesananPage() {
                           {order.status !== "selesai" && order.status !== "dibatalkan" && (
                             <button
                               type="button"
-                              onClick={() => cancelOrder(order.id)}
+                              onClick={() => cancelOrder(order.id, order.dbId)}
                               className="rounded-lg border border-red-200 p-1.5 text-red-500 hover:bg-red-50 transition"
                               title="Batalkan"
                             >

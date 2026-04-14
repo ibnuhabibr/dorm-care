@@ -93,14 +93,56 @@ export default function ProfilPage() {
 
   const initial = firstName ? firstName.charAt(0) : "U";
 
-  const handleSavePersonal = () => {
+  const handleSavePersonal = async () => {
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase || !user?.id) {
+      toast.error("Sistem database tidak terhubung.");
+      return;
+    }
+    
+    // Save to profiles table
+    const { error } = await supabase.from('profiles').upsert({
+      id: user.id,
+      first_name: firstName,
+      last_name: lastName,
+      phone: phone
+    });
+
+    if (error) {
+      toast.error("Gagal menyimpan ke database: " + error.message);
+      return;
+    }
+
+    // Update Zustand local store
+    useSessionStore.getState().updateUser({
+      nama: `${firstName} ${lastName}`.trim(),
+      noHp: phone
+    });
+
+    // Sync metadata to auth.users for consistency
+    await supabase.auth.updateUser({
+      data: {
+        first_name: firstName,
+        last_name: lastName,
+        whatsapp: phone
+      }
+    });
+
     toast.success("Informasi pribadi berhasil diperbarui!");
   };
 
-  const handleSaveSecurity = () => {
+  const handleSaveSecurity = async () => {
     if (newPassword !== confirmPassword) {
       toast.error("Konfirmasi password tidak cocok!");
       return;
+    }
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) {
+        toast.error("Gagal mengubah password: " + error.message);
+        return;
+      }
     }
     toast.success("Password berhasil diubah!");
     setOldPassword("");
