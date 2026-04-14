@@ -74,7 +74,7 @@ export function Navbar() {
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="group flex items-center">
           <Image 
-            src="/logo.webp" 
+            src="/logo-baru.png" 
             alt="Dorm Care" 
             width={160} 
             height={48} 

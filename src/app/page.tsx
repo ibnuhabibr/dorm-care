@@ -462,7 +462,7 @@ export default function Homepage() {
               Pesan Sekarang
             </Link>
             <a
-              href="https://wa.me/6281234567890?text=Halo+Dorm+Care,+saya+mau+booking+hari+ini"
+              href="https://wa.me/6282233080680?text=Halo+Dorm+Care,+saya+mau+booking+hari+ini"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2 rounded-full border-2 border-white/30 bg-white/10 px-8 py-3.5 text-sm font-bold text-white transition hover:bg-white/20 backdrop-blur-sm"

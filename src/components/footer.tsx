@@ -12,7 +12,7 @@ export function Footer() {
           <div className="space-y-6 lg:col-span-4 pr-8">
             <Link href="/" className="inline-block transition-opacity hover:opacity-80">
               <Image 
-                src="/logo.webp" 
+                src="/logo-baru.png" 
                 alt="Dorm Care" 
                 width={140} 
                 height={40} 
@@ -53,7 +53,7 @@ export function Footer() {
             <h3 className="text-sm font-bold text-neutral-900 tracking-wide">Kontak</h3>
             <ul className="space-y-3 text-sm">
               <li>
-                <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="flex items-center gap-2 transition-colors hover:text-brand-primary">
+                <a href="https://wa.me/6282233080680" target="_blank" rel="noreferrer" className="flex items-center gap-2 transition-colors hover:text-brand-primary">
                   <MessageCircle className="size-4" />
                   <span>WhatsApp</span>
                 </a>

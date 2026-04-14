@@ -117,7 +117,7 @@ export const launchBanner = {
 
 export const trustStats = [
   { value: "150+", label: "Order Pertama Tersedia" },
-  { value: "5 Jenis", label: "Paket Layanan" },
+  { value: "17 Jenis", label: "Paket Layanan" },
   { value: "24/7", label: "Customer Support" },
   { value: "Sukolilo", label: "Area Operasional" },
 ];
@@ -694,9 +694,9 @@ export const chatbotQuickReplies = [
 ];
 
 export const whatsappContact = {
-  nomor: "6281234567890",
+  nomor: "6282233080680",
   instagram: "https://instagram.com/dormcare",
-  email: "contact@dormcare.id",
+  email: "aksanagroup5@gmail.com",
   area: "Kecamatan Sukolilo, Surabaya",
   jamOperasional: "Senin-Jumat 08.00-20.00, Sabtu 08.00-17.00",
 };

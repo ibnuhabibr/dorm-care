@@ -66,7 +66,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="w-full max-w-sm rounded-3xl border border-neutral-200 bg-white p-8 shadow-sm">
           <div className="mb-6 flex flex-col items-center text-center">
             <Image 
-              src="/logo.webp" 
+              src="/logo-baru.png" 
               alt="Dorm Care Admin" 
               width={160} 
               height={48} 
@@ -130,7 +130,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="flex items-center justify-between h-20 px-6 border-b border-neutral-200">
           <Link href="/admin" className={`font-display font-bold text-brand-primary transition ${sidebarOpen ? 'text-xl' : 'text-2xl'}`}>
             <Image 
-              src="/logo.webp" 
+              src="/logo-baru.png" 
               alt="Dorm Care Admin" 
               width={140} 
               height={40} 

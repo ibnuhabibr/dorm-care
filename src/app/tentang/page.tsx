@@ -182,7 +182,7 @@ export default function TentangPage() {
               <Mail className="size-5 text-blue-400" />
               <div>
                 <p className="text-xs font-bold text-blue-300">Email</p>
-                <p className="text-sm font-bold">contact@dormcare.id</p>
+                <p className="text-sm font-bold">{whatsappContact.email}</p>
               </div>
             </a>
           </div>
