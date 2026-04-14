@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -46,8 +46,14 @@ function getPasswordStrength(password: string) {
 
 export default function DaftarPage() {
   const router = useRouter();
-  const { setUser } = useSessionStore();
+  const { user, setUser } = useSessionStore();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.push(user.role === "admin" ? "/admin" : "/profil");
+    }
+  }, [user, router]);
 
   const {
     register,

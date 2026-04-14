@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -11,11 +11,17 @@ import { useSessionStore } from "@/state/session-store";
 
 export default function MasukPage() {
   const router = useRouter();
-  const { setUser } = useSessionStore();
+  const { user, setUser } = useSessionStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.push(user.role === "admin" ? "/admin" : "/profil");
+    }
+  }, [user, router]);
 
   const handleEmailLogin = async () => {
     if (!email || !password) {

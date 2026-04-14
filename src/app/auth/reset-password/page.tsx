@@ -1,16 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle2, Loader2, Mail } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { useSessionStore } from "@/state/session-store";
 
 export default function ResetPasswordPage() {
+  const router = useRouter();
+  const { user } = useSessionStore();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.push(user.role === "admin" ? "/admin" : "/profil");
+    }
+  }, [user, router]);
 
   const handleReset = async () => {
     if (!email) {
