@@ -12,6 +12,7 @@ import { navLinks, notificationCatalog } from "@/data/site-data";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/state/session-store";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { createPortal } from "react-dom";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -19,6 +20,7 @@ export function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { user, logout } = useSessionStore();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -29,6 +31,10 @@ export function Navbar() {
     [],
   );
   const recentNotifs = useMemo(() => notificationCatalog.slice(0, 5), []);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Scroll behavior
   useEffect(() => {
@@ -264,155 +270,174 @@ export function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Drawer */}
-      <AnimatePresence>
-        {open && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[100] bg-neutral-900/60 backdrop-blur-sm lg:hidden"
-              onClick={() => setOpen(false)}
-            />
-
-            {/* Sidebar Drawer */}
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 right-0 z-[101] flex w-[320px] max-w-[85vw] flex-col bg-white shadow-2xl lg:hidden"
-            >
-              {/* Drawer Header */}
-              <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50 px-6 py-5">
-                {user ? (
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-11 shrink-0 place-content-center rounded-full bg-brand-primary font-bold text-white shadow-sm">
-                      {initial}
-                    </span>
-                    <div>
-                      <h4 className="font-bold text-neutral-900">{user.nama}</h4>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                        {user.membership} Member
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <div className="grid size-11 shrink-0 place-content-center rounded-full bg-brand-primary-light/50 text-brand-primary">
-                      <User className="size-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-neutral-900">Halo, Tamu</h4>
-                      <p className="text-xs text-neutral-500">Masuk untuk memesan</p>
-                    </div>
-                  </div>
-                )}
-                
-                <button
-                  type="button"
+      {/* Mobile Drawer (Portaled to body to fix stacking context issues) */}
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {open && (
+              <div className="lg:hidden">
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="fixed inset-0 z-[9998] bg-neutral-900/40 backdrop-blur-sm"
                   onClick={() => setOpen(false)}
-                  className="grid size-8 place-content-center rounded-full bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+                />
+
+                {/* Sidebar Drawer */}
+                <motion.div
+                  initial={{ x: "100%", opacity: 0.5 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: "100%", opacity: 0.5 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                  className="fixed inset-y-0 right-0 z-[9999] flex w-[320px] max-w-[85vw] flex-col bg-white shadow-2xl"
                 >
-                  <X className="size-4" />
-                </button>
-              </div>
+                  {/* Drawer Header */}
+                  <div className="flex items-center justify-between border-b border-neutral-100 bg-white px-6 py-5">
+                    {user ? (
+                      <div className="flex items-center gap-3">
+                        <span className="grid size-11 shrink-0 place-content-center rounded-full bg-brand-primary font-bold text-white shadow-sm">
+                          {initial}
+                        </span>
+                        <div>
+                          <h4 className="font-bold text-neutral-900">{user.nama}</h4>
+                          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                            {user.membership} Member
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <div className="grid size-11 shrink-0 place-content-center rounded-full bg-brand-primary/10 text-brand-primary">
+                          <User className="size-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-neutral-900">Halo, Tamu</h4>
+                          <p className="text-xs text-neutral-500">Masuk untuk memesan</p>
+                        </div>
+                      </div>
+                    )}
 
-              {/* Drawer Navigation Links */}
-              <div className="flex-1 overflow-y-auto px-6 py-6">
-                <nav className="flex flex-col gap-2">
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-400">Navigasi Utama</p>
-                  {navLinks.map((link) => {
-                    const active = pathname === link.href;
-                    return (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setOpen(false)}
-                        className={cn(
-                          "rounded-xl px-4 py-3 text-sm font-semibold transition-all",
-                          active 
-                            ? "bg-brand-primary text-white shadow-md shadow-brand-primary/20" 
-                            : "text-neutral-700 hover:bg-neutral-100",
-                        )}
-                      >
-                        {link.label}
-                      </Link>
-                    );
-                  })}
-                  
-                  <div className="my-3 h-px bg-neutral-100" />
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-400">Akun Saya</p>
-
-                  {user ? (
-                    <>
-                      <Link
-                        href="/notifikasi"
-                        onClick={() => setOpen(false)}
-                        className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-neutral-700 transition-all hover:bg-neutral-100"
-                      >
-                        <span>Notifikasi</span>
-                        {unreadNotifications > 0 && (
-                          <span className="grid h-5 min-w-5 place-content-center rounded-full bg-error px-1 text-[10px] text-white">
-                            {unreadNotifications}
-                          </span>
-                        )}
-                      </Link>
-                      
-                      {user.role === "admin" && (
-                        <Link
-                          href="/admin"
-                          onClick={() => setOpen(false)}
-                          className="flex items-center justify-between rounded-xl border border-brand-primary/20 bg-brand-primary-light/10 px-4 py-3 text-sm font-semibold text-brand-primary transition-all"
-                        >
-                          <span>Admin Panel</span>
-                          <ShieldCheck className="size-4" />
-                        </Link>
-                      )}
-                    </>
-                  ) : null}
-                </nav>
-              </div>
-
-              {/* Drawer Footer Actions */}
-              <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-5">
-                {user ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleLogout();
-                      setOpen(false);
-                    }}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-white py-3 text-sm font-semibold text-error shadow-sm transition hover:bg-red-50"
-                  >
-                    <LogOut className="size-4" /> Keluar Akun
-                  </button>
-                ) : (
-                  <div className="grid grid-cols-2 gap-3">
-                    <Link
-                      href="/auth/masuk"
+                    <button
+                      type="button"
                       onClick={() => setOpen(false)}
-                      className="rounded-xl border border-neutral-200 bg-white py-3 text-center text-sm font-semibold text-neutral-700 shadow-sm transition hover:border-brand-primary hover:text-brand-primary"
+                      className="grid size-8 place-content-center rounded-full bg-neutral-50 text-neutral-500 hover:bg-neutral-100 transition"
                     >
-                      Masuk
-                    </Link>
-                    <Link
-                      href="/auth/daftar"
-                      onClick={() => setOpen(false)}
-                      className="rounded-xl bg-brand-primary py-3 text-center text-sm font-semibold border border-transparent shadow shadow-brand-primary/20 text-white transition hover:bg-brand-primary-dark"
-                    >
-                      Daftar
-                    </Link>
+                      <X className="size-4" />
+                    </button>
                   </div>
-                )}
+
+                  {/* Drawer Navigation Links */}
+                  <div className="flex-1 overflow-y-auto px-6 py-6 pb-20">
+                    <nav className="flex flex-col gap-1.5">
+                      <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                        Navigasi Utama
+                      </p>
+                      {navLinks.map((link) => {
+                        const active = pathname === link.href;
+                        return (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setOpen(false)}
+                            className={cn(
+                              "flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition-all",
+                              active
+                                ? "bg-brand-primary text-white shadow-md shadow-brand-primary/20"
+                                : "text-neutral-700 hover:bg-neutral-50",
+                            )}
+                          >
+                            {link.label}
+                            {active && <ChevronDown className="size-4 -rotate-90 text-white/70" />}
+                          </Link>
+                        );
+                      })}
+
+                      <div className="my-4 h-px bg-neutral-100" />
+                      <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                        Akun Saya
+                      </p>
+
+                      {user ? (
+                        <>
+                          <Link
+                            href="/notifikasi"
+                            onClick={() => setOpen(false)}
+                            className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold text-neutral-700 transition-all hover:bg-neutral-50"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Bell className="size-4 text-neutral-400" />
+                              <span>Notifikasi</span>
+                            </div>
+                            {unreadNotifications > 0 && (
+                              <span className="grid h-5 min-w-5 place-content-center rounded-full bg-error px-1.5 text-[10px] text-white">
+                                {unreadNotifications}
+                              </span>
+                            )}
+                          </Link>
+
+                          {user.role === "admin" && (
+                            <Link
+                              href="/admin"
+                              onClick={() => setOpen(false)}
+                              className="flex items-center justify-between rounded-xl border border-brand-primary/20 bg-brand-primary/5 px-4 py-3 text-sm font-semibold text-brand-primary transition-all hover:bg-brand-primary/10 mt-2"
+                            >
+                              <div className="flex items-center gap-2">
+                                <ShieldCheck className="size-4" />
+                                <span>Admin Panel</span>
+                              </div>
+                            </Link>
+                          )}
+                        </>
+                      ) : (
+                        <div className="rounded-xl bg-neutral-50 p-4 mt-2">
+                          <p className="text-xs text-neutral-500 mb-3">
+                            Masuk untuk melihat riwayat pesanan dan promo eksklusif.
+                          </p>
+                          <Link
+                            href="/auth/masuk"
+                            onClick={() => setOpen(false)}
+                            className="flex w-full items-center justify-center rounded-lg bg-white px-4 py-2.5 text-sm font-bold text-neutral-800 shadow-sm border border-neutral-200 transition hover:bg-neutral-50"
+                          >
+                            Masuk ke Akun
+                          </Link>
+                        </div>
+                      )}
+                    </nav>
+                  </div>
+
+                  {/* Drawer Footer Actions */}
+                  <div className="border-t border-neutral-100 bg-white px-6 py-5">
+                    {user ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleLogout();
+                          setOpen(false);
+                        }}
+                        className="flex w-full items-center justify-between rounded-xl border border-red-100 bg-red-50/50 px-4 py-3 text-sm font-bold text-error transition hover:bg-red-50"
+                      >
+                        Keluar Akun
+                        <LogOut className="size-4" />
+                      </button>
+                    ) : (
+                      <Link
+                        href="/auth/daftar"
+                        onClick={() => setOpen(false)}
+                        className="flex w-full items-center justify-center rounded-xl bg-brand-primary py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-primary-dark"
+                      >
+                        Buat Akun Baru
+                      </Link>
+                    )}
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
-          </>
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
     </header>
   );
 }
