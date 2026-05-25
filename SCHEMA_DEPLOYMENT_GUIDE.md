@@ -133,7 +133,7 @@ ORDER BY event_object_table;
 ```sql
 -- Insert test user profile (first create auth user in Supabase UI, get their UUID)
 INSERT INTO profiles (id, first_name, last_name, phone, role)
-VALUES ('YOUR_USER_UUID_HERE', 'Test', 'User', '081234567890', 'user');
+VALUES ('YOUR_USER_UUID_HERE', 'Test', 'User', '6282233080680', 'user');
 
 -- Verify insert
 SELECT * FROM profiles WHERE first_name = 'Test';

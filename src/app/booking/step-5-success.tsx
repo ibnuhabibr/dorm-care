@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, Clock, MessageSquare, Copy, Home } from 'lucide-react';
 import Link from 'next/link';
 import { useBookingStore } from '@/state/booking-store';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { createOrder } from '@/lib/supabase/orders';
@@ -12,11 +12,12 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function Step5Success() {
   const router = useRouter();
+  const orderSavedRef = useRef(false);
   const [isCreating, setIsCreating] = useState(false);
-  const { 
-    orderNumber, 
-    totalAmount, 
-    selectedServiceName, 
+  const {
+    orderNumber,
+    totalAmount,
+    selectedServiceName,
     selectedServiceId,
     selectedServicePrice,
     address,
@@ -27,30 +28,30 @@ export default function Step5Success() {
     promoDiscount,
     notes,
     laundryDistance,
-    reset 
+    paymentMethod,
+    bankName,
+    paymentProof,
+    reset
   } = useBookingStore();
 
   useEffect(() => {
-    // Save order to Supabase on mount
     const saveOrder = async () => {
-      if (isCreating || !selectedServiceId) return;
-      
+      if (orderSavedRef.current || isCreating || !selectedServiceId) return;
+
+      orderSavedRef.current = true;
       setIsCreating(true);
       try {
         const supabase = getSupabaseBrowserClient();
-        if (!supabase) {
-          // Demo mode - no Supabase configured
-          return;
-        }
+        if (!supabase) return;
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         if (!user) {
           toast.error('Silakan login terlebih dahulu');
           router.push('/auth/masuk');
           return;
         }
 
-        await createOrder({
+        const result = await createOrder({
           userId: user.id,
           serviceId: selectedServiceId!,
           serviceName: selectedServiceName ?? '',
@@ -66,6 +67,43 @@ export default function Step5Success() {
           totalAmount: totalAmount,
         });
 
+        // Upload payment proof if exists
+        if (paymentProof && result.order?.id) {
+          try {
+            const fileExt = paymentProof.startsWith('data:image/png') ? 'png' : 'jpg';
+            const fileName = `payment_${result.order.id}.${fileExt}`;
+            const base64Data = paymentProof.split(',')[1];
+            const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+
+            const { error: uploadError } = await supabase.storage
+              .from('payment-proofs')
+              .upload(fileName, binaryData, {
+                contentType: `image/${fileExt}`,
+                upsert: true,
+              });
+
+            if (!uploadError) {
+              const { data: urlData } = supabase.storage
+                .from('payment-proofs')
+                .getPublicUrl(fileName);
+
+              if (urlData?.publicUrl) {
+                await supabase.from('transactions').insert({
+                  order_id: result.order.id,
+                  user_id: user.id,
+                  payment_method: paymentMethod || 'qris',
+                  amount: totalAmount,
+                  status: 'pending',
+                  proof_url: urlData.publicUrl,
+                  bank_name: bankName || null,
+                });
+              }
+            }
+          } catch (uploadErr) {
+            console.error('Failed to upload proof:', uploadErr);
+          }
+        }
+
         toast.success('Pesanan berhasil disimpan!');
       } catch (error) {
         console.error('Failed to save order:', error);
@@ -77,9 +115,8 @@ export default function Step5Success() {
 
     saveOrder();
 
-    // Trigger confetti animation
     const container = document.getElementById('confetti-container');
-    if (container) {
+    if (container && container.children.length === 0) {
       for (let i = 0; i < 50; i++) {
         const confetti = document.createElement('div');
         confetti.className = 'confetti';
@@ -89,7 +126,7 @@ export default function Step5Success() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedServiceId]);
+  }, []);
 
   const handleCopyOrderId = () => {
     if (orderNumber) {

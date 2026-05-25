@@ -1,6 +1,7 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useBookingStore } from '@/state/booking-store';
 import Step1Service from './step-1-service';
 import Step2Details from './step-2-details';
@@ -10,6 +11,19 @@ import Step5Success from './step-5-success';
 
 function BookingContent() {
   const currentStep = useBookingStore((s) => s.currentStep);
+  const reset = useBookingStore((s) => s.reset);
+  const searchParams = useSearchParams();
+  const hasResetRef = useRef(false);
+
+  // Reset booking state on fresh entry (not coming back from payment or later steps)
+  useEffect(() => {
+    if (hasResetRef.current) return;
+    const isFreshEntry = !searchParams.get('layanan');
+    if (isFreshEntry || currentStep === 'success') {
+      hasResetRef.current = true;
+      reset();
+    }
+  }, []);
 
   return (
     <>

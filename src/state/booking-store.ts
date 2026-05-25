@@ -16,9 +16,10 @@ export interface BookingState {
   promoCode: string;
   promoDiscount: number;
   totalAmount: number;
-  paymentMethod: 'qris' | 'gopay' | 'shopeepay' | 'dana' | 'transfer_bank' | null;
+  paymentMethod: 'qris' | 'gopay' | 'shopeepay' | 'bca' | 'mandiri' | 'bni' | 'bsi' | null;
   bankName: string | null;
   orderNumber: string | null;
+  paymentProof: string | null;
 }
 
 export interface BookingActions {
@@ -28,7 +29,8 @@ export interface BookingActions {
   setLaundryDistance: (distance: number | null) => void;
   setPromo: (code: string, discount: number) => void;
   calculateTotal: () => void;
-  setPaymentMethod: (method: 'qris' | 'gopay' | 'shopeepay' | 'dana' | 'transfer_bank', bankName?: string) => void;
+  setPaymentMethod: (method: 'qris' | 'gopay' | 'shopeepay' | 'bca' | 'mandiri' | 'bni' | 'bsi', bankName?: string) => void;
+  setPaymentProof: (proof: string | null) => void;
   setOrderNumber: (orderNumber: string) => void;
   reset: () => void;
 }
@@ -50,6 +52,7 @@ const initialState: BookingState = {
   paymentMethod: null,
   bankName: null,
   orderNumber: null,
+  paymentProof: null,
 };
 
 export const useBookingStore = create<BookingState & BookingActions>((set) => ({
@@ -98,7 +101,10 @@ export const useBookingStore = create<BookingState & BookingActions>((set) => ({
       paymentMethod: method,
       bankName,
     }),
-  
+
+  setPaymentProof: (proof) =>
+    set({ paymentProof: proof }),
+
   setOrderNumber: (orderNumber) =>
     set({ orderNumber }),
   

@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { Search, CheckCircle2, Clock, XCircle, Phone, ChevronDown } from "lucide-react";
+import { Search, CheckCircle2, Clock, XCircle, Phone, ChevronDown, CheckCheck, Truck, Play, Ban, Receipt, X, ExternalLink, FileText } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { AdminNav } from "@/components/admin-nav";
-import { orderCatalog, type OrderItem } from "@/data/site-data";
+import { type OrderItem } from "@/data/site-data";
 import { formatRupiah } from "@/lib/utils";
+import Link from "next/link";
 
 type StatusKey = "semua" | OrderItem["status"];
 
@@ -36,14 +37,23 @@ const nextStatus: Partial<Record<OrderItem["status"], OrderItem["status"]>> = {
   dikerjakan: "selesai",
 };
 
+const bulkActions: Array<{ targetStatus: OrderItem["status"]; label: string; icon: React.ReactNode; class: string }> = [
+  { targetStatus: "diterima", label: "Terima", icon: <CheckCheck className="size-3.5" />, class: "bg-blue-500 hover:bg-blue-600 text-white" },
+  { targetStatus: "menuju", label: "Menuju Lokasi", icon: <Truck className="size-3.5" />, class: "bg-orange-500 hover:bg-orange-600 text-white" },
+  { targetStatus: "dikerjakan", label: "Kerjakan", icon: <Play className="size-3.5" />, class: "bg-brand-primary hover:bg-brand-primary-dark text-white" },
+  { targetStatus: "selesai", label: "Selesai", icon: <CheckCircle2 className="size-3.5" />, class: "bg-green-500 hover:bg-green-600 text-white" },
+  { targetStatus: "dibatalkan", label: "Batalkan", icon: <Ban className="size-3.5" />, class: "bg-red-500 hover:bg-red-600 text-white" },
+];
+
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function AdminPesananPage() {
-  const [orders, setOrders] = useState<(OrderItem & { dbId?: string; userId?: string })[]>([]);
+  const [orders, setOrders] = useState<(OrderItem & { dbId?: string; userId?: string; proofUrl?: string; paymentMethodName?: string })[]>([]);
   const [filter, setFilter] = useState<StatusKey>("semua");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [proofModal, setProofModal] = useState<{ url: string; orderId: string; userName: string } | null>(null);
 
   // Status mapping
   const dbToAppStatus = (dbStatus: string): OrderItem["status"] => {
@@ -73,8 +83,10 @@ export default function AdminPesananPage() {
   const fetchOrders = async () => {
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
-    
+
     setIsLoading(true);
+
+    // Fetch orders with profiles
     const { data, error } = await supabase
       .from('orders')
       .select(`
@@ -93,25 +105,50 @@ export default function AdminPesananPage() {
       return;
     }
 
+    // Fetch all transactions for proof URLs
+    let transactionMap: Record<string, { proof_url?: string; payment_method?: string; bank_name?: string }> = {};
+    if (data && data.length > 0) {
+      const orderIds = data.map((d: any) => d.id);
+      const { data: txData } = await supabase
+        .from('transactions')
+        .select('order_id, proof_url, payment_method, bank_name')
+        .in('order_id', orderIds);
+
+      if (txData) {
+        for (const tx of txData) {
+          transactionMap[tx.order_id] = {
+            proof_url: tx.proof_url,
+            payment_method: tx.payment_method,
+            bank_name: tx.bank_name,
+          };
+        }
+      }
+    }
+
     if (data) {
-      const mappedOrders = data.map((d: any) => ({
-        id: d.order_number,
-        orderId: d.order_number, // Added explicitly for OrderItem type
-        dbId: d.id, // Supabase UUID
-        userId: d.user_id,
-        namaUser: d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name || ''}`.trim() : "Unknown",
-        noHp: d.profiles?.phone || d.mitra_phone || "-",
-        layananId: d.service_id,
-        layananNama: d.service_name,
-        total: d.total_amount, // Renamed from harga
-        tanggal: new Date(`${d.scheduled_date}T${d.scheduled_time}`).toLocaleString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}), // Renamed from jadwalWaktu
-        alamat: d.address, // Renamed from lokasi
-        status: dbToAppStatus(d.status),
-        metodePembayaran: "qris" as const, // Default dummy since we don't fetch payments yet
-        mitra: d.mitra_name || "Mencari Mitra...",
-        catatan: d.notes || "",
-        timeline: [] // Dummy empty timeline since not used in this view
-      }));
+      const mappedOrders = data.map((d: any) => {
+        const tx = transactionMap[d.id];
+        return {
+          id: d.order_number,
+          orderId: d.order_number,
+          dbId: d.id,
+          userId: d.user_id,
+          namaUser: d.profiles ? `${d.profiles.first_name} ${d.profiles.last_name || ''}`.trim() : "Unknown",
+          noHp: d.profiles?.phone || d.mitra_phone || "-",
+          layananId: d.service_id,
+          layananNama: d.service_name,
+          total: d.total_amount,
+          tanggal: new Date(`${d.scheduled_date}T${d.scheduled_time}`).toLocaleString('id-ID', {day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}),
+          alamat: d.address,
+          status: dbToAppStatus(d.status),
+          metodePembayaran: "qris" as const,
+          mitra: d.mitra_name || "Mencari Mitra...",
+          catatan: d.notes || "",
+          timeline: [],
+          proofUrl: tx?.proof_url,
+          paymentMethodName: tx?.bank_name || tx?.payment_method,
+        };
+      });
       setOrders(mappedOrders);
     }
     setIsLoading(false);
@@ -203,15 +240,54 @@ export default function AdminPesananPage() {
     );
   };
 
+  const bulkSetStatus = async (targetStatus: OrderItem["status"]) => {
+    if (selectedIds.length === 0) return toast.error("Pilih pesanan terlebih dahulu.");
+
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) return;
+
+    const actionLabel = bulkActions.find(a => a.targetStatus === targetStatus)?.label || targetStatus;
+    const loading = toast.loading(`Memproses ${selectedIds.length} pesanan...`);
+
+    let count = 0;
+    const dbIds: string[] = [];
+
+    for (const id of selectedIds) {
+      const order = orders.find(o => o.id === id);
+      if (!order || !order.dbId) continue;
+
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: appToDbStatus(targetStatus) })
+        .eq('id', order.dbId);
+
+      if (!error) {
+        count++;
+        dbIds.push(order.dbId);
+      }
+    }
+
+    toast.dismiss(loading);
+
+    if (count > 0) {
+      setOrders((prev) =>
+        prev.map((o) => dbIds.includes(o.dbId!) ? { ...o, status: targetStatus } : o)
+      );
+      toast.success(`${count} pesanan → "${actionLabel}"`);
+      setSelectedIds([]);
+    } else {
+      toast.error("Gagal memperbarui status.");
+    }
+  };
+
   const bulkAdvance = async () => {
     if (selectedIds.length === 0) return toast.error("Pilih pesanan terlebih dahulu.");
-    
-    // Process one by one for simplicity and safety, real prod bulk updates would be preferred
+
     let count = 0;
     for (const id of selectedIds) {
       const order = orders.find(o => o.id === id);
       if (!order) continue;
-      
+
       const next = nextStatus[order.status];
       if (!next) continue;
 
@@ -220,8 +296,7 @@ export default function AdminPesananPage() {
       }
       count++;
     }
-    
-    // Refresh entirely after bulk to avoid out of sync
+
     await fetchOrders();
     toast.success(`${count} pesanan berhasil dimajukan statusnya.`);
     setSelectedIds([]);
@@ -253,7 +328,7 @@ export default function AdminPesananPage() {
       </section>
 
       {/* Toolbar */}
-      <section className="rounded-2xl border border-neutral-200 bg-white p-4">
+      <section className="rounded-2xl border border-neutral-200 bg-white p-4 space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           <label className="relative flex-1 min-w-[200px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-400" />
@@ -276,10 +351,35 @@ export default function AdminPesananPage() {
           <button
             type="button"
             onClick={bulkAdvance}
-            className="h-10 rounded-xl bg-brand-primary px-4 text-sm font-bold text-white hover:bg-brand-primary-dark transition"
+            disabled={selectedIds.length === 0}
+            className="h-10 rounded-xl bg-brand-primary px-4 text-sm font-bold text-white hover:bg-brand-primary-dark transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Majukan status ({selectedIds.length})
+            Majukan ({selectedIds.length})
           </button>
+        </div>
+
+        {/* Bulk Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider mr-1">
+            Bulk Set Status:
+          </span>
+          {bulkActions.map((action) => (
+            <button
+              key={action.targetStatus}
+              type="button"
+              disabled={selectedIds.length === 0}
+              onClick={() => bulkSetStatus(action.targetStatus)}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition disabled:opacity-30 disabled:cursor-not-allowed ${action.class}`}
+            >
+              {action.icon}
+              {action.label}
+            </button>
+          ))}
+          {selectedIds.length > 0 && (
+            <span className="text-xs text-neutral-500 ml-2">
+              {selectedIds.length} pesanan dipilih
+            </span>
+          )}
         </div>
       </section>
 
@@ -376,6 +476,23 @@ export default function AdminPesananPage() {
                               <XCircle className="size-3.5" />
                             </button>
                           )}
+                          {order.proofUrl && (
+                            <button
+                              type="button"
+                              onClick={() => setProofModal({ url: order.proofUrl!, orderId: order.id, userName: order.namaUser })}
+                              className="rounded-lg border border-blue-200 bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100 transition"
+                              title="Lihat Bukti Pembayaran"
+                            >
+                              <Receipt className="size-3.5" />
+                            </button>
+                          )}
+                          <Link
+                            href={`/admin/pesanan/${order.id}`}
+                            className="rounded-lg border border-neutral-200 p-1.5 text-neutral-500 hover:bg-neutral-100 transition"
+                            title="Detail Pesanan"
+                          >
+                            <FileText className="size-3.5" />
+                          </Link>
                           <button
                             type="button"
                             onClick={() => toast.success(`Membuka WhatsApp ${order.namaUser}...`)}
@@ -394,6 +511,54 @@ export default function AdminPesananPage() {
           </table>
         </div>
       </section>
+
+      {/* Payment Proof Modal */}
+      {proofModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setProofModal(null)}
+        >
+          <div
+            className="relative bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <div>
+                <h3 className="font-bold text-neutral-900">Bukti Pembayaran</h3>
+                <p className="text-xs text-neutral-500">
+                  {proofModal.orderId} — {proofModal.userName}
+                </p>
+              </div>
+              <button
+                onClick={() => setProofModal(null)}
+                className="p-2 rounded-lg hover:bg-neutral-100 transition"
+              >
+                <X className="size-5 text-neutral-500" />
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="rounded-xl overflow-hidden border border-neutral-200">
+                <img
+                  src={proofModal.url}
+                  alt="Bukti Pembayaran"
+                  className="w-full h-auto object-contain max-h-[60vh]"
+                />
+              </div>
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <a
+                  href={proofModal.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 transition"
+                >
+                  <ExternalLink className="size-3.5" />
+                  Buka di Tab Baru
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
