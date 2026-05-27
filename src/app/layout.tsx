@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
+import Script from "next/script";
 
 import { SiteLayout } from "@/components/site-layout";
 import { ToasterProvider } from "@/components/ui/toaster-provider";
@@ -66,6 +67,16 @@ export default function RootLayout({
           <SiteLayout>{children}</SiteLayout>
         </div>
         <ToasterProvider />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-46B7C1CBJ6"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-46B7C1CBJ6');`}
+        </Script>
       </body>
     </html>
   );
