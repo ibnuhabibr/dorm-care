@@ -38,15 +38,25 @@ export const metadata: Metadata = {
     title: "Dorm Care | Jasa Kebersihan Kos & Asrama Surabaya",
     description:
       "Layanan kebersihan digital untuk kos dan asrama mahasiswa. Booking kapan saja, tim datang ke tempatmu.",
+    url: "https://dormcare.web.id",
     siteName: "Dorm Care",
     locale: "id_ID",
     type: "website",
+    images: [
+      {
+        url: "/og-image.webp",
+        width: 1200,
+        height: 630,
+        alt: "Dorm Care - Jasa Kebersihan Kos & Asrama Surabaya",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Dorm Care | Jasa Kebersihan Kos Surabaya",
     description:
       "Booking layanan kebersihan kos & asrama secara digital. Area Sukolilo, Surabaya.",
+    images: ["/og-image.webp"],
   },
   robots: {
     index: true,
