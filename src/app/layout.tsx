@@ -20,6 +20,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://dormcare.web.id"),
   title: {
     default: "Dorm Care | Jasa Kebersihan Kos & Asrama Surabaya",
     template: "%s | Dorm Care",
