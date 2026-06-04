@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getSupabaseBrowserClient, getUserMembership } from "@/lib/supabase/client";
 import { useSessionStore } from "@/state/session-store";
 
 export default function MasukPage() {
@@ -54,12 +54,14 @@ export default function MasukPage() {
       return;
     }
 
+    const membership = await getUserMembership(data.user.id);
     setUser({
+      id: data.user.id,
       nama: data.user.user_metadata.first_name || data.user.email?.split("@")[0] || "User",
       email: data.user.email || email,
       noHp: data.user.user_metadata.whatsapp || "",
       role: data.user.email?.includes("admin") ? "admin" : "user",
-      membership: "bronze",
+      membership,
     });
     toast.success("Login berhasil.");
     router.push("/profil");

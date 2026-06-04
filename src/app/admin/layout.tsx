@@ -15,6 +15,7 @@ import {
   FileText,
   BarChart3,
   Settings,
+  ImageIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -25,6 +26,7 @@ const adminMenuItems = [
   { href: '/admin/promo', label: 'Promo', icon: Tag },
   { href: '/admin/pengguna', label: 'Pengguna', icon: Users },
   { href: '/admin/konten', label: 'Konten', icon: FileText },
+  { href: '/admin/galeri', label: 'Galeri', icon: ImageIcon },
   { href: '/admin/laporan', label: 'Laporan', icon: BarChart3 },
 ];
 

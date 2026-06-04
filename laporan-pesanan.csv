@@ -1,0 +1,99 @@
+﻿No,Nomor Pesanan,Tanggal Pesan,Jam,Status,Nama Pelanggan,Email,No HP,Area,Alamat,Layanan,Harga Layanan,Kode Promo,Diskon,Total Bayar,Rating,Catatan
+1,DC-00001,16 April 2026,08:53,completed,Maya Indah,mayaindah04@gmail.com,08123001022,Keputih,Klampis Ngasem No. 14,Pro Basic Clean,35000,-,0,35000,4/5,-
+2,DC-00002,16 April 2026,13:08,completed,Gita Nurhaliza,gitanurhaliza98@gmail.com,08123001014,Manyar,Manyar Jaya No. 10,Sahabat Manis,38000,-,0,38000,-,-
+3,DC-00003,16 April 2026,14:22,completed,Reza Mahendra,rezamahendra03@gmail.com,08123001027,Nginden,Keputih Timur 2A No. 17,Basic Clean,20000,-,0,20000,3/5,-
+4,DC-00004,17 April 2026,07:57,completed,Tari Anggraini,tarianggraini01@gmail.com,08123001032,Keputih,"Kos Hijau, Mulyosari",Extra Deep Clean,63000,-,0,63000,3/5,-
+5,DC-00005,17 April 2026,14:34,completed,Intan Saraswati,intansaras01@gmail.com,08123001018,Semolowaru,Medokan Semampir No. 9,Pro Basic Clean,35000,-,0,35000,4/5,Kos samping kantin biru
+6,DC-00006,17 April 2026,16:09,completed,Satria Wibowo,satriawibowo99@gmail.com,08123001029,Klampis,"Kos Pak RT, Gebang Kidul",Special Clean (5 km),78000,-,0,78000,5/5,"Lantai 2, belok kanan"
+7,DC-00007,18 April 2026,09:34,cancelled,Rizky Pratama,rizkypratama99@gmail.com,08123001005,Mulyosari,"Jl. Sukolilo No. 12, Kos Biru",Jasa Laundry (5 km),15000,-,0,15000,-,-
+8,DC-00008,18 April 2026,10:03,completed,Fajar Nugroho,fajarnugroho02@gmail.com,08123001009,Klampis,Klampis Ngasem No. 14,Extra Deep Clean,63000,-,0,63000,4/5,-
+9,DC-00009,18 April 2026,11:09,completed,Eka Putri,ekaputri0304@gmail.com,08123001010,Medokan,Jl. Manyar Permai No. 22,Basic Clean,20000,-,0,20000,-,-
+10,DC-00010,18 April 2026,16:58,completed,Sari Yulianti,sariyulianti02@gmail.com,08123001030,Medokan,Mulyosari Utara No. 4,Deep Clean,50000,-,0,50000,3/5,Jangan lupa sudut lemari juga
+11,DC-00011,19 April 2026,17:38,completed,Ahmad Fauzi,ahmadfauzi15@gmail.com,08123001001,Sukolilo,Manyar Jaya No. 10,Extra Deep Clean,63000,DORMCARE15,7560,55440,3/5,-
+12,DC-00012,19 April 2026,10:08,completed,Kevin Gunawan,kevingunawan97@gmail.com,08123001019,Klampis,Manyar Jaya No. 10,Pro Basic Clean,35000,-,0,35000,5/5,Tolong fokus kamar mandi ya
+13,DC-00013,19 April 2026,14:56,completed,Wulan Kusuma,wulankusuma97@gmail.com,08123001034,Manyar,Klampis Asri Blok C-3,Sahabat Manis,38000,-,0,38000,-,-
+14,DC-00014,19 April 2026,15:56,completed,Lukman Hidayat,lukmanhidayat95@gmail.com,08123001021,Sukolilo,"Kos Bunga, Nginden",Sahabat Manis,38000,-,0,38000,4/5,-
+15,DC-00015,21 April 2026,08:19,completed,Nissa Aulia,nissaaulia02@gmail.com,08123001024,Manyar,"Jl. Sukolilo No. 12, Kos Biru",Deep Clean,50000,-,0,50000,5/5,-
+16,DC-00016,21 April 2026,13:09,cancelled,Nanda Saputra,nandasaputra98@gmail.com,08123001023,Gebang,"Kos Pak RT, Gebang Kidul",Extra Deep Clean,63000,DORMCARE15,7560,55440,-,Jangan lupa sudut lemari juga
+17,DC-00017,22 April 2026,07:12,completed,Aditya Kurniawan,adityakurniawan96@gmail.com,08123001011,Sukolilo,Jl. Menur Pumpungan No. 8,Extra Deep Clean,63000,DORMCARE15,7560,55440,5/5,Di belakang ada pintu alternatif
+18,DC-00018,22 April 2026,08:56,completed,Hendra Setiawan,hendrasetiawan@gmail.com,08123001015,Mulyosari,Klampis Asri Blok C-3,Sahabat Akrab,68000,-,0,68000,5/5,-
+19,DC-00019,23 April 2026,08:02,cancelled,Yuni Rahayu,yunirahayu03@gmail.com,08123001036,Menur,Medokan Ayu No. 7,Sahabat Manis,38000,-,0,38000,-,-
+20,DC-00020,24 April 2026,08:46,cancelled,Citra Dewi,citradewi20@gmail.com,08123001006,Menur,Jl. Menur Pumpungan No. 8,Basic Clean,20000,-,0,20000,-,Tolong fokus kamar mandi ya
+21,DC-00021,24 April 2026,10:23,completed,Irfan Hakim,irfanhakim03@gmail.com,08123001017,Nginden,"Kos Pak RT, Gebang Kidul",Sahabat Manis,38000,-,0,38000,5/5,Jangan lupa sudut lemari juga
+22,DC-00022,25 April 2026,13:34,completed,Anisa Rahmawati,anisarahma01@gmail.com,08123001002,Keputih,Jl. Menur Pumpungan No. 8,Extra Deep Clean,63000,-,0,63000,3/5,-
+23,DC-00023,25 April 2026,15:52,completed,Fitri Handayani,fitrihandayani@gmail.com,08123001012,Keputih,Menur Jaya No. 2,Special Clean (5 km),78000,-,0,78000,4/5,"Ada kucing, hati-hati keluar"
+24,DC-00024,25 April 2026,15:53,completed,Bella Permata,bellaprmt22@gmail.com,08123001004,Manyar,Keputih Timur 2A No. 17,Deep Clean,50000,-,0,50000,4/5,Ruang tamu juga ya
+25,DC-00025,27 April 2026,07:57,completed,Bagas Wijaya,bagaswijaya00@gmail.com,08123001013,Gebang,Nginden Baru No. 19,Extra Deep Clean,63000,-,0,63000,5/5,-
+26,DC-00026,27 April 2026,08:31,completed,Hendra Setiawan,hendrasetiawan@gmail.com,08123001015,Mulyosari,Keputih Timur 2A No. 17,Sahabat Manis,38000,-,0,38000,3/5,"Ada kucing, hati-hati keluar"
+27,DC-00027,27 April 2026,11:44,completed,Satria Wibowo,satriawibowo99@gmail.com,08123001029,Klampis,"Jl. Sukolilo No. 12, Kos Biru",Deep Clean,50000,-,0,50000,4/5,Kunci kos bisa ambil di ibu kos
+28,DC-00028,27 April 2026,16:22,completed,Eka Putri,ekaputri0304@gmail.com,08123001010,Medokan,Jl. Sukolilo Lor No. 45,Deep Clean,50000,-,0,50000,4/5,Jangan lupa sudut lemari juga
+29,DC-00029,27 April 2026,16:36,completed,Lukman Hidayat,lukmanhidayat95@gmail.com,08123001021,Sukolilo,Medokan Ayu No. 7,Pro Basic Clean,35000,-,0,35000,-,-
+30,DC-00030,29 April 2026,17:58,completed,Ahmad Fauzi,ahmadfauzi15@gmail.com,08123001001,Sukolilo,Klampis Ngasem No. 14,Soulmate,100000,-,0,100000,-,Jangan lupa sudut lemari juga
+31,DC-00031,29 April 2026,09:32,completed,Budi Santoso,budisantoso98@gmail.com,08123001003,Gebang,Nginden Baru No. 19,Basic Clean,20000,-,0,20000,-,Di belakang ada pintu alternatif
+32,DC-00032,30 April 2026,17:36,cancelled,Nanda Saputra,nandasaputra98@gmail.com,08123001023,Gebang,Manyar Jaya No. 10,Deep Clean,50000,-,0,50000,-,Kunci kos bisa ambil di ibu kos
+33,DC-00033,30 April 2026,11:43,completed,Maya Indah,mayaindah04@gmail.com,08123001022,Keputih,Klampis Asri Blok C-3,Pro Basic Clean,35000,-,0,35000,5/5,-
+34,DC-00034,01 Mei 2026,07:06,completed,Yuni Rahayu,yunirahayu03@gmail.com,08123001036,Menur,Medokan Semampir No. 9,Sahabat Manis,38000,-,0,38000,4/5,-
+35,DC-00035,01 Mei 2026,13:01,completed,Aditya Kurniawan,adityakurniawan96@gmail.com,08123001011,Sukolilo,Mulyosari Utara No. 4,Basic Clean,20000,-,0,20000,4/5,-
+36,DC-00036,01 Mei 2026,15:13,completed,Gita Nurhaliza,gitanurhaliza98@gmail.com,08123001014,Manyar,Manyar Jaya No. 10,Special Clean (10 km),93000,-,0,93000,3/5,-
+37,DC-00037,01 Mei 2026,16:06,completed,Umar Bakri,umarbakri00@gmail.com,08123001033,Gebang,Mulyosari Utara No. 4,Sahabat Manis,38000,-,0,38000,-,-
+38,DC-00038,02 Mei 2026,17:47,cancelled,Fajar Nugroho,fajarnugroho02@gmail.com,08123001009,Klampis,Jl. Sukolilo Lor No. 45,Deep Clean,50000,-,0,50000,-,Jangan lupa sudut lemari juga
+39,DC-00039,02 Mei 2026,13:23,completed,Dimas Ardiansyah,dimasard01@gmail.com,08123001007,Nginden,Medokan Ayu No. 7,Sahabat Manis,38000,-,0,38000,4/5,"Lantai 2, belok kanan"
+40,DC-00040,02 Mei 2026,15:36,completed,Reza Mahendra,rezamahendra03@gmail.com,08123001027,Nginden,Menur Jaya No. 2,Special Clean (10 km),93000,-,0,93000,5/5,-
+41,DC-00041,03 Mei 2026,10:18,cancelled,Okta Ramadhan,oktaramadhan21@gmail.com,08123001025,Mulyosari,Klampis Ngasem No. 14,Deep Clean,50000,DORMCARE15,6000,44000,-,Jangan lupa sudut lemari juga
+42,DC-00042,03 Mei 2026,10:57,completed,Rizky Pratama,rizkypratama99@gmail.com,08123001005,Mulyosari,Jl. Manyar Permai No. 22,Deep Clean,50000,-,0,50000,4/5,Ruang tamu juga ya
+43,DC-00043,03 Mei 2026,11:29,completed,Tari Anggraini,tarianggraini01@gmail.com,08123001032,Keputih,"Kos Bunga, Nginden",Pro Basic Clean,35000,-,0,35000,4/5,"Lantai 2, belok kanan"
+44,DC-00044,04 Mei 2026,17:13,completed,Intan Saraswati,intansaras01@gmail.com,08123001018,Semolowaru,"Kos Hijau, Mulyosari",Extra Deep Clean,63000,-,0,63000,3/5,Jangan lupa sudut lemari juga
+45,DC-00045,04 Mei 2026,07:31,cancelled,Sari Yulianti,sariyulianti02@gmail.com,08123001030,Medokan,Jl. Keputih 3A No. 5,Deep Clean,50000,-,0,50000,-,Kunci kos bisa ambil di ibu kos
+46,DC-00046,04 Mei 2026,15:18,completed,Citra Dewi,citradewi20@gmail.com,08123001006,Menur,Jl. Sukolilo Lor No. 45,Deep Clean,50000,-,0,50000,-,Kos samping kantin biru
+47,DC-00047,07 Mei 2026,08:19,completed,Anisa Rahmawati,anisarahma01@gmail.com,08123001002,Keputih,Menur Jaya No. 2,Special Clean (5 km),78000,-,0,78000,3/5,-
+48,DC-00048,07 Mei 2026,16:03,completed,Irfan Hakim,irfanhakim03@gmail.com,08123001017,Nginden,Mulyosari Utara No. 4,Deep Clean,50000,-,0,50000,5/5,Tolong fokus kamar mandi ya
+49,DC-00049,08 Mei 2026,09:27,cancelled,Hendra Setiawan,hendrasetiawan@gmail.com,08123001015,Mulyosari,"Kos Hijau, Mulyosari",Deep Clean,50000,DORMCARE15,6000,44000,-,-
+50,DC-00050,08 Mei 2026,14:23,completed,Eka Putri,ekaputri0304@gmail.com,08123001010,Medokan,Nginden Baru No. 19,Jasa Laundry (5 km),15000,-,0,15000,4/5,-
+51,DC-00051,08 Mei 2026,15:48,completed,Nissa Aulia,nissaaulia02@gmail.com,08123001024,Manyar,Jl. Menur Pumpungan No. 8,Deep Clean,50000,-,0,50000,-,-
+52,DC-00052,09 Mei 2026,11:52,completed,Rizky Pratama,rizkypratama99@gmail.com,08123001005,Mulyosari,Klampis Asri Blok C-3,Extra Deep Clean,63000,-,0,63000,-,-
+53,DC-00053,10 Mei 2026,17:13,completed,Satria Wibowo,satriawibowo99@gmail.com,08123001029,Klampis,Jl. Semolowaru No. 15,Pro Basic Clean,35000,-,0,35000,4/5,Tolong fokus kamar mandi ya
+54,DC-00054,10 Mei 2026,08:47,completed,Nanda Saputra,nandasaputra98@gmail.com,08123001023,Gebang,Jl. Manyar Permai No. 22,Deep Clean,50000,-,0,50000,-,-
+55,DC-00055,10 Mei 2026,09:21,completed,Wulan Kusuma,wulankusuma97@gmail.com,08123001034,Manyar,"Kos Hijau, Mulyosari",Sahabat Manis,38000,-,0,38000,-,-
+56,DC-00056,11 Mei 2026,09:23,completed,Fitri Handayani,fitrihandayani@gmail.com,08123001012,Keputih,Jl. Keputih 3A No. 5,Deep Clean,50000,DORMCARE15,6000,44000,3/5,"Lantai 2, belok kanan"
+57,DC-00057,11 Mei 2026,11:31,completed,Kevin Gunawan,kevingunawan97@gmail.com,08123001019,Klampis,Manyar Jaya No. 10,Deep Clean,50000,-,0,50000,-,Di belakang ada pintu alternatif
+58,DC-00058,12 Mei 2026,17:21,completed,Lukman Hidayat,lukmanhidayat95@gmail.com,08123001021,Sukolilo,Menur Jaya No. 2,Sahabat Manis,38000,-,0,38000,-,-
+59,DC-00059,12 Mei 2026,08:31,completed,Gita Nurhaliza,gitanurhaliza98@gmail.com,08123001014,Manyar,Manyar Jaya No. 10,Deep Clean,50000,DORMCARE15,6000,44000,3/5,"Lantai 2, belok kanan"
+60,DC-00060,12 Mei 2026,09:42,completed,Aditya Kurniawan,adityakurniawan96@gmail.com,08123001011,Sukolilo,"Kos Pak RT, Gebang Kidul",Deep Clean,50000,-,0,50000,4/5,-
+61,DC-00061,12 Mei 2026,11:42,completed,Fajar Nugroho,fajarnugroho02@gmail.com,08123001009,Klampis,Klampis Asri Blok C-3,Sahabat Manis,38000,-,0,38000,-,-
+62,DC-00062,12 Mei 2026,16:59,completed,Umar Bakri,umarbakri00@gmail.com,08123001033,Gebang,"Kos Bunga, Nginden",Pro Basic Clean,35000,-,0,35000,-,"Lantai 2, belok kanan"
+63,DC-00063,13 Mei 2026,07:04,completed,Reza Mahendra,rezamahendra03@gmail.com,08123001027,Nginden,Jl. Menur Pumpungan No. 8,Sahabat Manis,38000,-,0,38000,4/5,-
+64,DC-00064,13 Mei 2026,07:08,completed,Intan Saraswati,intansaras01@gmail.com,08123001018,Semolowaru,"Kos Pak RT, Gebang Kidul",Deep Clean,50000,-,0,50000,-,Kunci kos bisa ambil di ibu kos
+65,DC-00065,14 Mei 2026,09:19,completed,Maya Indah,mayaindah04@gmail.com,08123001022,Keputih,Jl. Semolowaru No. 15,Basic Clean,20000,-,0,20000,4/5,Kos samping kantin biru
+66,DC-00066,14 Mei 2026,10:01,completed,Tari Anggraini,tarianggraini01@gmail.com,08123001032,Keputih,Keputih Timur 2A No. 17,Extra Deep Clean,63000,-,0,63000,3/5,-
+67,DC-00067,14 Mei 2026,10:18,completed,Bagas Wijaya,bagaswijaya00@gmail.com,08123001013,Gebang,Jl. Semolowaru No. 15,Pro Basic Clean,35000,-,0,35000,5/5,-
+68,DC-00068,14 Mei 2026,16:49,completed,Ahmad Fauzi,ahmadfauzi15@gmail.com,08123001001,Sukolilo,Klampis Asri Blok C-3,Extra Deep Clean,63000,-,0,63000,5/5,-
+69,DC-00069,17 Mei 2026,11:21,completed,Fitri Handayani,fitrihandayani@gmail.com,08123001012,Keputih,Menur Jaya No. 2,Extra Deep Clean,63000,-,0,63000,5/5,"Lantai 2, belok kanan"
+70,DC-00070,19 Mei 2026,09:43,completed,Dimas Ardiansyah,dimasard01@gmail.com,08123001007,Nginden,"Kos Hijau, Mulyosari",Sahabat Akrab,68000,-,0,68000,4/5,"Lantai 2, belok kanan"
+71,DC-00071,19 Mei 2026,10:33,completed,Budi Santoso,budisantoso98@gmail.com,08123001003,Gebang,Medokan Ayu No. 7,Deep Clean,50000,-,0,50000,-,-
+72,DC-00072,19 Mei 2026,10:46,completed,Gita Nurhaliza,gitanurhaliza98@gmail.com,08123001014,Manyar,Menur Jaya No. 2,Deep Clean,50000,-,0,50000,3/5,-
+73,DC-00073,19 Mei 2026,15:48,completed,Irfan Hakim,irfanhakim03@gmail.com,08123001017,Nginden,Manyar Jaya No. 10,Sahabat Manis,38000,-,0,38000,5/5,-
+74,DC-00074,20 Mei 2026,17:34,completed,Eka Putri,ekaputri0304@gmail.com,08123001010,Medokan,"Kos Hijau, Mulyosari",Jasa Laundry (5 km),15000,-,0,15000,-,Kunci kos bisa ambil di ibu kos
+75,DC-00075,20 Mei 2026,11:01,completed,Satria Wibowo,satriawibowo99@gmail.com,08123001029,Klampis,Nginden Baru No. 19,Special Clean (5 km),78000,-,0,78000,3/5,-
+76,DC-00076,20 Mei 2026,11:04,completed,Nissa Aulia,nissaaulia02@gmail.com,08123001024,Manyar,Jl. Keputih 3A No. 5,Sahabat Manis,38000,-,0,38000,4/5,"Lantai 2, belok kanan"
+77,DC-00077,21 Mei 2026,07:03,completed,Fajar Nugroho,fajarnugroho02@gmail.com,08123001009,Klampis,Medokan Ayu No. 7,Special Clean (10 km),93000,DORMCARE15,11160,81840,-,-
+78,DC-00078,21 Mei 2026,08:57,completed,Ahmad Fauzi,ahmadfauzi15@gmail.com,08123001001,Sukolilo,Gebang Lor No. 33,Extra Deep Clean,63000,-,0,63000,3/5,-
+79,DC-00079,22 Mei 2026,08:58,completed,Rizky Pratama,rizkypratama99@gmail.com,08123001005,Mulyosari,Keputih Timur 2A No. 17,Pro Basic Clean,35000,-,0,35000,5/5,"Ada kucing, hati-hati keluar"
+80,DC-00080,22 Mei 2026,14:12,completed,Citra Dewi,citradewi20@gmail.com,08123001006,Menur,Gebang Lor No. 33,Sahabat Akrab,68000,-,0,68000,4/5,-
+81,DC-00081,23 Mei 2026,15:38,completed,Nanda Saputra,nandasaputra98@gmail.com,08123001023,Gebang,Jl. Manyar Permai No. 22,Deep Clean,50000,-,0,50000,3/5,Di belakang ada pintu alternatif
+82,DC-00082,24 Mei 2026,07:43,completed,Wulan Kusuma,wulankusuma97@gmail.com,08123001034,Manyar,Jl. Keputih 3A No. 5,Basic Clean,20000,-,0,20000,5/5,Tolong fokus kamar mandi ya
+83,DC-00083,24 Mei 2026,09:02,completed,Intan Saraswati,intansaras01@gmail.com,08123001018,Semolowaru,Jl. Manyar Permai No. 22,Deep Clean,50000,-,0,50000,-,"Lantai 2, belok kanan"
+84,DC-00084,24 Mei 2026,10:39,completed,Tari Anggraini,tarianggraini01@gmail.com,08123001032,Keputih,Manyar Jaya No. 10,Deep Clean,50000,-,0,50000,4/5,Ruang tamu juga ya
+85,DC-00085,24 Mei 2026,15:06,completed,Maya Indah,mayaindah04@gmail.com,08123001022,Keputih,"Kos Pak RT, Gebang Kidul",Pro Basic Clean,35000,-,0,35000,5/5,"Lantai 2, belok kanan"
+86,DC-00086,24 Mei 2026,15:32,completed,Aditya Kurniawan,adityakurniawan96@gmail.com,08123001011,Sukolilo,Nginden Baru No. 19,Special Clean (5 km),78000,-,0,78000,5/5,-
+87,DC-00087,24 Mei 2026,16:36,completed,Hendra Setiawan,hendrasetiawan@gmail.com,08123001015,Mulyosari,Nginden Baru No. 19,Sahabat Akrab,68000,DORMCARE15,8160,59840,3/5,-
+88,DC-00088,25 Mei 2026,07:28,completed,Anisa Rahmawati,anisarahma01@gmail.com,08123001002,Keputih,Jl. Semolowaru No. 15,Deep Clean,50000,-,0,50000,4/5,-
+89,DC-00089,25 Mei 2026,07:38,completed,Lukman Hidayat,lukmanhidayat95@gmail.com,08123001021,Sukolilo,Klampis Ngasem No. 14,Soulmate,100000,-,0,100000,4/5,Kunci kos bisa ambil di ibu kos
+90,DC-00090,25 Mei 2026,10:11,completed,Reza Mahendra,rezamahendra03@gmail.com,08123001027,Nginden,Jl. Sukolilo Lor No. 45,Deep Clean,50000,-,0,50000,5/5,Jangan lupa sudut lemari juga
+91,DC-00091,25 Mei 2026,16:57,completed,Sari Yulianti,sariyulianti02@gmail.com,08123001030,Medokan,Menur Jaya No. 2,Basic Clean,20000,-,0,20000,5/5,-
+92,DC-00092,26 Mei 2026,09:52,cancelled,Yuni Rahayu,yunirahayu03@gmail.com,08123001036,Menur,Menur Jaya No. 2,Sahabat Akrab,68000,-,0,68000,-,Kos samping kantin biru
+93,DC-00093,26 Mei 2026,16:38,completed,Okta Ramadhan,oktaramadhan21@gmail.com,08123001025,Mulyosari,Medokan Ayu No. 7,Basic Clean,20000,-,0,20000,5/5,Jangan lupa sudut lemari juga
+94,DC-00094,31 Mei 2026,16:56,completed,Putri Wulandari,putriwulan96@gmail.com,08123001026,Menur,Medokan Ayu No. 7,Basic Clean,20000,-,0,20000,4/5,-
+95,ORD-20260604-WIKULG,04 Juni 2026,011:22,completed,mhanif,mhanif@student.ppns.ac.id,-,Keputih,jln sukolilo park regency blok k20,Basic Clean,20000,-,0,20000,-,-
+96,ORD-20260604-4FMZAU,04 Juni 2026,13:00 - 15:00,completed,Thariq,thariqjatmiko23@gmail.com,-,Gebang,Jalan gebang putih no 62 sebelah Jacob cell,Jasa Laundry (5 km),30000,-,0,45000,-,-
+97,ORD-20260604-U587EM,04 Juni 2026,08:00 - 10:00,completed,Dewi,dewisyafitri997@gmail.com,-,Gebang,kos putri jl. gebang lor nomor 74,Basic Clean,20000,-,0,20000,-,pewangi yang manis
+98,ORD-20260604-I23MF8,04 Juni 2026,07:48,completed,Anggun,anggunnp91@gmail.com,-,Keputih,Jl. Keputih Tegal Gang IIIC No. 25A,Pro Basic Clean,35000,DORMCARE15,5250,35000,-,-

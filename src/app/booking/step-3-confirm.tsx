@@ -9,6 +9,8 @@ import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useSessionStore } from '@/state/session-store';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function Step3Confirm() {
   const {
@@ -28,9 +30,11 @@ export default function Step3Confirm() {
     totalAmount,
   } = useBookingStore();
 
+  const user = useSessionStore((s) => s.user);
   const [promoInput, setPromoInput] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<typeof promoCatalog[0] | null>(null);
+  const [checkingPromo, setCheckingPromo] = useState(false);
 
   useEffect(() => {
     calculateTotal();
@@ -39,7 +43,7 @@ export default function Step3Confirm() {
   const laundryFee = laundryDistance ? (laundryDistance === 10 ? 15000 : 0) : 0;
   const currentSubtotal = subtotal + laundryFee;
 
-  const handleApplyPromo = () => {
+  const handleApplyPromo = async () => {
     if (!promoInput.trim()) {
       toast.error('Masukkan kode promo');
       return;
@@ -61,6 +65,28 @@ export default function Step3Confirm() {
       return;
     }
 
+    // Check if user already used this promo
+    if (user?.id) {
+      setCheckingPromo(true);
+      const supabase = getSupabaseBrowserClient();
+      if (supabase) {
+        const { data: usedOrders } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('promo_code', promo.kode)
+          .neq('status', 'cancelled')
+          .limit(1);
+
+        if (usedOrders && usedOrders.length > 0) {
+          setCheckingPromo(false);
+          toast.error('Kode promo ini sudah pernah Anda gunakan dan tidak dapat dipakai lagi.');
+          return;
+        }
+      }
+      setCheckingPromo(false);
+    }
+
     const discount =
       promo.tipe === 'persen'
         ? Math.floor((currentSubtotal * promo.nilai) / 100)
@@ -68,6 +94,8 @@ export default function Step3Confirm() {
 
     setAppliedPromo(promo);
     setPromo(promo.kode, discount);
+    // Recalculate total after promo applied
+    setTimeout(() => calculateTotal(), 0);
     toast.success(`Promo "${promo.nama}" berhasil diterapkan!`);
   };
 
@@ -215,9 +243,10 @@ export default function Step3Confirm() {
                 />
                 <button
                   onClick={handleApplyPromo}
-                  className="px-4 py-2 bg-brand-primary text-white text-sm font-bold rounded-lg hover:bg-brand-primary-dark transition-all"
+                  disabled={checkingPromo}
+                  className="px-4 py-2 bg-brand-primary text-white text-sm font-bold rounded-lg hover:bg-brand-primary-dark disabled:opacity-50 transition-all"
                 >
-                  Pakai
+                  {checkingPromo ? "Cek..." : "Pakai"}
                 </button>
               </div>
               {appliedPromo && (

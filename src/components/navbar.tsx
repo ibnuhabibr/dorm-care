@@ -8,10 +8,12 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
-import { navLinks, notificationCatalog } from "@/data/site-data";
+import { navLinks } from "@/data/site-data";
+import type { NotificationItem } from "@/data/site-data";
 import { cn } from "@/lib/utils";
 import { useSessionStore } from "@/state/session-store";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getUserNotifications, getUnreadNotificationCount, markNotificationRead } from "@/lib/supabase/notifications";
 import { createPortal } from "react-dom";
 
 export function Navbar() {
@@ -26,11 +28,10 @@ export function Navbar() {
   const notifRef = useRef<HTMLDivElement>(null);
 
   const initial = useMemo(() => user?.nama?.charAt(0).toUpperCase() ?? "U", [user]);
-  const unreadNotifications = useMemo(
-    () => notificationCatalog.filter((item) => !item.sudahDibaca).length,
-    [],
-  );
-  const recentNotifs = useMemo(() => notificationCatalog.slice(0, 5), []);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const recentNotifs = useMemo(() => notifications.slice(0, 5), [notifications]);
+  const unreadNotifications = unreadCount;
 
   useEffect(() => {
     setMounted(true);
@@ -42,6 +43,28 @@ export function Navbar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Fetch notifications dynamically
+  useEffect(() => {
+    if (!user?.id) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
+
+    const fetchNotifications = async () => {
+      const data = await getUserNotifications(user.id!);
+      setNotifications(data);
+      const count = await getUnreadNotificationCount(user.id!);
+      setUnreadCount(count);
+    };
+
+    fetchNotifications();
+
+    // Poll every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [user?.id]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -90,7 +113,7 @@ export function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-5 lg:flex">
-          {navLinks.map((link) => {
+          {navLinks.filter(link => link.href !== "/riwayat" || user).map((link) => {
             const active = pathname === link.href;
             return (
               <Link
@@ -116,63 +139,77 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          {/* Notification Bell */}
-          <div ref={notifRef} className="relative">
-            <button
-              type="button"
-              onClick={() => { setNotifOpen((prev) => !prev); setDropdownOpen(false); }}
-              aria-label="Notifikasi"
-              className="relative grid size-10 place-content-center rounded-xl border border-neutral-200 text-neutral-600 transition hover:border-brand-primary/30 hover:text-brand-primary"
-            >
-              <Bell className="size-4" />
-              {unreadNotifications > 0 && (
-                <span className="absolute -right-1 -top-1 grid size-5 place-content-center rounded-full bg-error text-[10px] font-bold text-white">
-                  {unreadNotifications}
-                </span>
-              )}
-            </button>
+          {/* Notification Bell - only for authenticated users */}
+          {user && (
+            <div ref={notifRef} className="relative">
+              <button
+                type="button"
+                onClick={() => { setNotifOpen((prev) => !prev); setDropdownOpen(false); }}
+                aria-label="Notifikasi"
+                className="relative grid size-10 place-content-center rounded-xl border border-neutral-200 text-neutral-600 transition hover:border-brand-primary/30 hover:text-brand-primary"
+              >
+                <Bell className="size-4" />
+                {unreadNotifications > 0 && (
+                  <span className="absolute -right-1 -top-1 grid size-5 place-content-center rounded-full bg-error text-[10px] font-bold text-white">
+                    {unreadNotifications}
+                  </span>
+                )}
+              </button>
 
-            {/* Notification Dropdown */}
-            <AnimatePresence>
-              {notifOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-80 rounded-2xl border border-neutral-200 bg-white p-2 shadow-lg"
-                >
-                  <div className="flex items-center justify-between px-3 py-2">
-                    <p className="text-sm font-bold text-neutral-900">Notifikasi</p>
-                    <span className="text-[10px] font-bold text-brand-primary">{unreadNotifications} baru</span>
-                  </div>
-                  <div className="max-h-72 space-y-1 overflow-y-auto">
-                    {recentNotifs.map((notif) => (
-                      <div
-                        key={notif.id}
-                        className={cn(
-                          "rounded-xl px-3 py-2.5 text-sm transition",
-                          notif.sudahDibaca
-                            ? "text-neutral-500"
-                            : "bg-brand-primary-light/20 font-medium text-neutral-900",
-                        )}
-                      >
-                        <p className="text-xs font-bold">{notif.judul}</p>
-                        <p className="mt-0.5 text-[11px] text-neutral-500 line-clamp-1">{notif.pesan}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <Link
-                    href="/notifikasi"
-                    onClick={() => setNotifOpen(false)}
-                    className="mt-1 block rounded-xl px-3 py-2 text-center text-xs font-bold text-brand-primary transition hover:bg-brand-primary-light/20"
+              {/* Notification Dropdown */}
+              <AnimatePresence>
+                {notifOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-80 rounded-2xl border border-neutral-200 bg-white p-2 shadow-lg"
                   >
-                    Lihat semua notifikasi →
-                  </Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                    <div className="flex items-center justify-between px-3 py-2">
+                      <p className="text-sm font-bold text-neutral-900">Notifikasi</p>
+                      <span className="text-[10px] font-bold text-brand-primary">{unreadNotifications} baru</span>
+                    </div>
+                    <div className="max-h-72 space-y-1 overflow-y-auto">
+                      {recentNotifs.map((notif) => (
+                        <div
+                          key={notif.id}
+                          className={cn(
+                            "rounded-xl px-3 py-2.5 text-sm transition",
+                            notif.sudahDibaca
+                              ? "text-neutral-500"
+                              : "bg-brand-primary-light/20 font-medium text-neutral-900",
+                          )}
+                        >
+                          <p className="text-xs font-bold">{notif.judul}</p>
+                          <p className="mt-0.5 text-[11px] text-neutral-500 line-clamp-1">{notif.pesan}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <Link
+                      href="/notifikasi"
+                      onClick={() => {
+                        setNotifOpen(false);
+                        if (user?.id) {
+                          import("@/lib/supabase/notifications").then((m) => {
+                            m.markAllNotificationsRead(user.id!).then(() => {
+                              setUnreadCount(0);
+                              setNotifications((prev) =>
+                                prev.map((n) => ({ ...n, sudahDibaca: true }))
+                              );
+                            });
+                          });
+                        }
+                      }}
+                      className="mt-1 block rounded-xl px-3 py-2 text-center text-xs font-bold text-brand-primary transition hover:bg-brand-primary-light/20"
+                    >
+                      Lihat semua notifikasi →
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {user ? (
             <div ref={dropdownRef} className="relative">
@@ -335,7 +372,7 @@ export function Navbar() {
                       <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
                         Navigasi Utama
                       </p>
-                      {navLinks.map((link) => {
+                      {navLinks.filter(link => link.href !== "/riwayat" || user).map((link) => {
                         const active = pathname === link.href;
                         return (
                           <Link

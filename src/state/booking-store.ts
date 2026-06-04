@@ -79,7 +79,6 @@ export const useBookingStore = create<BookingState & BookingActions>((set) => ({
   setLaundryDistance: (distance) =>
     set((state) => ({
       laundryDistance: distance,
-      selectedServicePrice: distance ? state.selectedServicePrice! + (distance === 5 ? 15000 : distance === 10 ? 30000 : 0) : state.selectedServicePrice,
     })),
   
   setPromo: (code, discount) =>

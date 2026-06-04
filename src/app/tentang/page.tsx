@@ -1,7 +1,9 @@
 "use client";
 
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   ChevronRight,
   Clock,
@@ -47,8 +49,36 @@ const timeline = [
 
 
 
+type GalleryItem = {
+  id: string;
+  image_url: string;
+  caption: string | null;
+  sort_order: number;
+};
+
 export default function TentangPage() {
   const [openFaq, setOpenFaq] = useState<string | null>(null);
+  const [gallery, setGallery] = useState<GalleryItem[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(true);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchGallery = async () => {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) { setGalleryLoading(false); return; }
+
+      const { data } = await supabase
+        .from("gallery")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false });
+
+      if (data) setGallery(data);
+      setGalleryLoading(false);
+    };
+    fetchGallery();
+  }, []);
 
   return (
     <div className="pb-20 pt-8">
@@ -117,6 +147,109 @@ export default function TentangPage() {
           ))}
         </div>
       </section>
+
+      {/* Galeri Dokumentasi */}
+      <section className="pt-20">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <p className="section-label mb-2">Galeri</p>
+          <h2 className="font-display text-3xl font-bold text-neutral-900">Dokumentasi layanan kami</h2>
+          <p className="mt-2 text-neutral-600 text-sm">
+            Potret hasil kerja dan momen tim Dorm Care di lapangan
+          </p>
+        </div>
+
+        {galleryLoading ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="aspect-[4/3] rounded-2xl bg-neutral-100 animate-pulse" />
+            ))}
+          </div>
+        ) : gallery.length === 0 ? (
+          <div className="rounded-2xl border-2 border-dashed border-neutral-300 bg-neutral-50 p-12 text-center">
+            <div className="mx-auto grid size-16 place-content-center rounded-full bg-neutral-100 text-neutral-400 mb-3">
+              <svg className="size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <path d="m21 15-5-5L5 21" />
+              </svg>
+            </div>
+            <p className="font-semibold text-neutral-500">Belum ada foto dokumentasi</p>
+            <p className="text-xs text-neutral-400 mt-1">Admin akan menambahkan foto kegiatan segera</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {gallery.map((item, idx) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setLightboxIndex(idx)}
+                className="group relative aspect-[4/3] overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
+                <Image
+                  src={item.image_url}
+                  alt={item.caption || "Dokumentasi Dorm Care"}
+                  fill
+                  className="object-cover transition duration-300 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+                {item.caption && (
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 pt-8 translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-200">
+                    <p className="text-xs font-semibold text-white text-left">{item.caption}</p>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && gallery[lightboxIndex] && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={() => setLightboxIndex(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxIndex(null)}
+            className="absolute top-4 right-4 grid size-10 place-content-center rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+          >
+            <svg className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+
+          {lightboxIndex > 0 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex - 1); }}
+              className="absolute left-4 grid size-10 place-content-center rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+            >
+              <svg className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+          )}
+          {lightboxIndex < gallery.length - 1 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex + 1); }}
+              className="absolute right-4 grid size-10 place-content-center rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+            >
+              <svg className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+          )}
+
+          <div className="relative max-h-[85vh] max-w-4xl w-full aspect-[4/3]">
+            <Image
+              src={gallery[lightboxIndex].image_url}
+              alt={gallery[lightboxIndex].caption || "Dokumentasi Dorm Care"}
+              fill
+              className="object-contain"
+              sizes="90vw"
+            />
+          </div>
+          {gallery[lightboxIndex].caption && (
+            <p className="absolute bottom-8 text-white/80 text-sm font-medium">{gallery[lightboxIndex].caption}</p>
+          )}
+        </div>
+      )}
 
       {/* Timeline / Perjalanan */}
       <section className="pt-20">

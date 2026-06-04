@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { Bell, BellRing, CheckCheck, Clock3, Gift, Trash2, UserCircle2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
-import { notificationCatalog, type NotificationItem } from "@/data/site-data";
+import { type NotificationItem } from "@/data/site-data";
 import { formatTanggalIndonesia } from "@/lib/utils";
+import { useSessionStore } from "@/state/session-store";
+import { getUserNotifications, markNotificationRead, markAllNotificationsRead } from "@/lib/supabase/notifications";
 
 type FilterKey = "semua" | "belum";
 type CategoryKey = "semua" | "order" | "promo" | "akun";
@@ -30,9 +32,24 @@ const categoryIcon: Record<NotificationItem["kategori"], typeof Gift> = {
 };
 
 export default function NotifikasiPage() {
+  const { user } = useSessionStore();
   const [tab, setTab] = useState<FilterKey>("semua");
   const [category, setCategory] = useState<CategoryKey>("semua");
-  const [notifications, setNotifications] = useState(notificationCatalog);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setNotifications([]);
+      setLoading(false);
+      return;
+    }
+
+    getUserNotifications(user.id).then((data) => {
+      setNotifications(data);
+      setLoading(false);
+    });
+  }, [user?.id]);
 
   const unreadCount = useMemo(
     () => notifications.filter((item) => !item.sudahDibaca).length,
@@ -55,10 +72,29 @@ export default function NotifikasiPage() {
     return items;
   }, [notifications, tab, category]);
 
-  const handleDelete = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-    toast.success("Notifikasi dihapus.");
+  const handleMarkRead = (id: string) => {
+    markNotificationRead(id);
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, sudahDibaca: true } : n)),
+    );
   };
+
+  const handleMarkAllRead = () => {
+    if (!user?.id) return;
+    markAllNotificationsRead(user.id);
+    setNotifications((prev) =>
+      prev.map((item) => ({ ...item, sudahDibaca: true })),
+    );
+    toast.success("Semua notifikasi ditandai dibaca.");
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="size-10 animate-spin rounded-full border-4 border-neutral-200 border-t-brand-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-20 pt-10">
@@ -98,7 +134,6 @@ export default function NotifikasiPage() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            {/* Category Filter */}
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value as CategoryKey)}
@@ -110,11 +145,7 @@ export default function NotifikasiPage() {
             </select>
             <button
               type="button"
-              onClick={() =>
-                setNotifications((prev) =>
-                  prev.map((item) => ({ ...item, sudahDibaca: true })),
-                )
-              }
+              onClick={handleMarkAllRead}
               className="inline-flex h-10 items-center gap-2 rounded-xl border border-neutral-200 px-3 text-sm font-semibold text-neutral-700 hover:border-brand-primary/30 hover:text-brand-primary-dark transition"
             >
               <CheckCheck className="size-4" />
@@ -170,26 +201,12 @@ export default function NotifikasiPage() {
                   {!item.sudahDibaca && (
                     <button
                       type="button"
-                      onClick={() =>
-                        setNotifications((prev) =>
-                          prev.map((n) =>
-                            n.id === item.id ? { ...n, sudahDibaca: true } : n,
-                          ),
-                        )
-                      }
+                      onClick={() => handleMarkRead(item.id)}
                       className="rounded-lg border border-brand-primary/20 bg-white px-3 py-2 text-xs font-semibold text-brand-primary-dark transition hover:bg-brand-primary-light"
                     >
                       Tandai dibaca
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(item.id)}
-                    className="rounded-lg p-2 text-neutral-400 opacity-0 transition hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
-                    title="Hapus notifikasi"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
                 </div>
               </div>
             </article>

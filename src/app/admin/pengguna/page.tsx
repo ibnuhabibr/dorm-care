@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { AdminNav } from '@/components/admin-nav';
 import { formatRupiah } from '@/lib/utils';
-import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 type MembershipLevel = 'bronze' | 'silver' | 'gold';
 
@@ -41,31 +40,13 @@ export default function AdminPenggunaPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchUsers = async () => {
-    const supabase = getSupabaseBrowserClient();
-    if (!supabase) return;
-
     setLoading(true);
 
-    // Fetch profiles
-    const { data: profiles, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const res = await fetch('/api/admin/data');
+      if (!res.ok) throw new Error('Gagal mengambil data');
 
-    if (error) {
-      toast.error('Gagal mengambil data pengguna: ' + error.message);
-      setLoading(false);
-      return;
-    }
-
-    if (profiles) {
-      // Fetch orders for all users to compute stats
-      const userIds = profiles.map((p: any) => p.id);
-      const { data: allOrders } = await supabase
-        .from('orders')
-        .select('id, user_id, service_name, total_amount, status, created_at')
-        .in('user_id', userIds)
-        .order('created_at', { ascending: false });
+      const { users: profiles, orders: allOrders } = await res.json();
 
       const ordersByUser: Record<string, Array<{ id: string; serviceName: string; total: number; status: string; date: string }>> = {};
       const totalsByUser: Record<string, number> = {};
@@ -81,18 +62,20 @@ export default function AdminPenggunaPage() {
             status: o.status,
             date: new Date(o.created_at).toLocaleDateString('id-ID'),
           });
-          totalsByUser[uid] = (totalsByUser[uid] || 0) + (o.total_amount || 0);
+          if (o.status !== 'cancelled') {
+            totalsByUser[uid] = (totalsByUser[uid] || 0) + (o.total_amount || 0);
+          }
         }
       }
 
-      const mapped: UserData[] = profiles.map((p: any) => ({
+      const mapped: UserData[] = (profiles || []).map((p: any) => ({
         id: p.id,
         nama: `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Tanpa Nama',
         email: p.email || '-',
         noHp: p.phone || '-',
         membership: (p.member_level as MembershipLevel) || 'bronze',
         totalOrder: ordersByUser[p.id]?.length || p.total_orders || 0,
-        totalBelanja: totalsByUser[p.id] || 0,
+        totalBelanja: totalsByUser[p.id] || p.total_spent || 0,
         aktif: p.is_active !== false,
         bergabung: new Date(p.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
         lastOnline: p.last_sign_in_at || p.updated_at
@@ -102,8 +85,11 @@ export default function AdminPenggunaPage() {
       }));
 
       setUsers(mapped);
+    } catch (err) {
+      toast.error('Gagal mengambil data pengguna');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSessionStore } from "@/state/session-store";
-import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getSupabaseBrowserClient, getUserMembership } from "@/lib/supabase/client";
 
 const PROTECTED_ROUTES = ["/booking", "/riwayat", "/transaksi", "/profil", "/notifikasi"];
 const ADMIN_ROUTES: string[] = []; // Admin has its own standalone local auth barrier
@@ -26,17 +26,18 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
 
     // Check initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
+        const membership = await getUserMembership(session.user.id);
         useSessionStore.getState().setUser({
           id: session.user.id,
-          nama: session.user.user_metadata.first_name 
+          nama: session.user.user_metadata.first_name
             ? `${session.user.user_metadata.first_name} ${session.user.user_metadata.last_name || ''}`.trim()
             : session.user.email?.split("@")[0] || "User",
           email: session.user.email || "",
           noHp: session.user.user_metadata.whatsapp || "",
           role: session.user.email?.includes("admin") ? "admin" : "user",
-          membership: "bronze",
+          membership,
         });
       } else {
         // Only clear if absolutely unauthorized
@@ -47,17 +48,18 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       setIsChecking(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
+        const membership = await getUserMembership(session.user.id);
         useSessionStore.getState().setUser({
           id: session.user.id,
-          nama: session.user.user_metadata.first_name 
+          nama: session.user.user_metadata.first_name
             ? `${session.user.user_metadata.first_name} ${session.user.user_metadata.last_name || ''}`.trim()
             : session.user.email?.split("@")[0] || "User",
           email: session.user.email || "",
           noHp: session.user.user_metadata.whatsapp || "",
           role: session.user.email?.includes("admin") ? "admin" : "user",
-          membership: "bronze",
+          membership,
         });
       } else if (event === "SIGNED_OUT") {
         useSessionStore.getState().logout();

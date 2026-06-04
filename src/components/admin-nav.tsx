@@ -12,6 +12,7 @@ const adminLinks = [
   { href: "/admin/pengguna", label: "Pengguna" },
   { href: "/admin/promo", label: "Promo" },
   { href: "/admin/konten", label: "Konten" },
+  { href: "/admin/galeri", label: "Galeri" },
   { href: "/admin/laporan", label: "Laporan" },
 ];
 
