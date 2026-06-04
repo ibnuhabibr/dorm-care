@@ -352,6 +352,7 @@ export default function AdminV2Page() {
                     <th className="px-5 py-3 text-xs font-bold text-neutral-500 uppercase">No. Pesanan</th>
                     <th className="px-5 py-3 text-xs font-bold text-neutral-500 uppercase">Pelanggan</th>
                     <th className="px-5 py-3 text-xs font-bold text-neutral-500 uppercase">Kontak</th>
+                    <th className="px-5 py-3 text-xs font-bold text-neutral-500 uppercase">Waktu</th>
                     <th className="px-5 py-3 text-xs font-bold text-neutral-500 uppercase">Layanan</th>
                     <th className="px-5 py-3 text-xs font-bold text-neutral-500 uppercase">Total</th>
                     <th className="px-5 py-3 text-xs font-bold text-neutral-500 uppercase">Status</th>
@@ -372,6 +373,14 @@ export default function AdminV2Page() {
                       <td className="px-5 py-3">
                         <p className="text-xs text-neutral-600">{o.customer_email}</p>
                         <p className="text-xs text-neutral-400">{o.customer_phone}</p>
+                      </td>
+                      <td className="px-5 py-3">
+                        <p className="font-semibold text-neutral-800">
+                          {new Date(o.scheduled_date).toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                        <p className="text-xs text-neutral-500">
+                          Pukul {o.scheduled_time || "-"} WIB
+                        </p>
                       </td>
                       <td className="px-5 py-3">
                         <p className="text-neutral-700">{o.service_name}</p>
