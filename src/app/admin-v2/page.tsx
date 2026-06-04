@@ -195,7 +195,7 @@ export default function AdminV2Page() {
       const q = search.toLowerCase();
       const matchSearch =
         o.order_number.toLowerCase().includes(q) ||
-        o.customer_name.toLowerCase().includes(q) ||
+        (o.customer_name || "").toLowerCase().includes(q) ||
         o.service_name.toLowerCase().includes(q);
       const matchStatus = statusFilter === "semua" || o.status === statusFilter;
       return matchSearch && matchStatus;

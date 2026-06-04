@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { AdminNav } from '@/components/admin-nav';
 import { formatRupiah } from '@/lib/utils';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 type MembershipLevel = 'bronze' | 'silver' | 'gold';
 
